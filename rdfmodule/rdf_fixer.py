@@ -3,9 +3,12 @@
 """
 Created on Tues Feb 23 21:00:00 2021
 Chemical RDF converter & fixer.
-Version 1.04 (Apr 03, 11:40:00 2021)
+Version 1.04b (Apr 03, 12:12:00 2021)
 
 @author: Alexander Minidis (DocMinus)
+
+license: MIT License
+Copyright (c) 2021 DocMinus
 """
 
 import warnings
@@ -118,13 +121,6 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
             line_three = f.readline()
 
         return "RXN:" if re.match(".+SCHEME", line_three) else "ROOT:"
-
-    #        if re.match(".+SCHEME", line_three):
-    #            SCI_REAX = "RXN:"
-    #        else:
-    #            SCI_REAX = "ROOT:"
-    #
-    #        return SCI_REAX
 
     def build_empty_table(in_file: str, SCI_REAX: str):
         """Scans file three times to build a pandas df used as main table
@@ -322,7 +318,7 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
 
     #
     ### Extract Experimental Procedure ###
-    # Mulitline, both,
+    # Multiline, both,
     # Reaxys and Scifinder
     #
 

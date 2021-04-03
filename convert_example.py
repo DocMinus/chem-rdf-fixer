@@ -2,9 +2,12 @@
 """
 Created on Tues Feb 23 21:00:00 2021
 RDF converter & fixer
-Version 1.04 (Apr 03 11:42:00 2021)
+Version 1.04b (Apr 03 12:12:00 2021)
 
 @author: Alexander Minidis (DocMinus)
+
+license: MIT License
+Copyright (c) 2021 DocMinus
 """
 
 import warnings
@@ -17,9 +20,10 @@ from rdfmodule import rdf_fixer
 
 def main():
     """Loads & converts the file(s).
-    RDF in, then CSV out.
-    The corrected (fixed) RDF file is written at the same time with with the ending:
-    _fixed.rdf (by the rdf_fixer function)
+    RDF file as input,
+    the corrected file as
+    _fixed.RDF output,
+    as well as tabular CSV output file (which stems from an internal pandas table).
     This demo script is light-weight, only some simple error checking.
     Only argument giving is the filename including path, e.g.
     convert_example_no_helper.py /home/user/my_rdf_file.rdf

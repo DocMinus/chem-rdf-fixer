@@ -47,4 +47,5 @@ Converting the current function(s) into a class has also been abandoned, there i
 ### License
 Independent of the code or whatever license, the testfiles provided are not to be included for further distribution other than ones initial testing.<br>
 The copyright for the data for these two files lies with the providers (ACS, resp. Elsevier Life Sciences IP Limited) and not with the author or anyone reusing/changing this code.<br>
-For the code section, the MIT License is applied.
+For the code section: Copyright (c) 2021 DocMinus, MIT License (see also LICENSE file).
+
