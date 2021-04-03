@@ -1,0 +1,492 @@
+$RDFILE 1
+$DATM 2021-01-29 12:21:07
+$RFMT $RIREG 28100547
+$RXN
+
+  Marvin       012901211220
+
+  2  1
+$MOL
+
+  Mrv0541 01292112202D          
+C8 H7 I O3
+ 12 13  0  0  0  0            999 V2000
+   -6.5606   -0.6189    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -5.8290   -0.2175    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -7.2743   -0.1871    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -7.2055   -1.1023    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+   -5.9046   -1.0843    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+   -5.8110    0.6175    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -7.2555    0.6486    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -6.9458   -1.8636    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -6.1429   -1.8520    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -6.5247    1.0501    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -5.0967    0.9961    0.0000 I   0  0  0  0  0  0  0  0  0  0  0  0
+   -6.5247    1.8636    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+  1  2  1  0  0  0  0
+  1  3  1  0  0  0  0
+  1  4  1  0  0  0  0
+  1  5  1  0  0  0  0
+  2  6  2  0  0  0  0
+  3  7  2  0  0  0  0
+  4  8  1  0  0  0  0
+  5  9  1  0  0  0  0
+  6 10  1  0  0  0  0
+  6 11  1  0  0  0  0
+  7 10  1  0  0  0  0
+  8  9  1  0  0  0  0
+ 10 12  2  0  0  0  0
+M  END
+$MOL
+
+  Mrv0541 01292112202D          
+C5 H6
+  5  5  0  0  0  0            999 V2000
+   -2.3130    0.5514    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -1.6500    0.0695    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -2.9753    0.0695    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -1.9032   -0.7097    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -2.7228   -0.7097    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+  1  2  1  0  0  0  0
+  1  3  1  0  0  0  0
+  2  4  2  0  0  0  0
+  3  5  2  0  0  0  0
+  4  5  1  0  0  0  0
+M  END
+$MOL
+
+  Mrv0541 01292112202D          
+C13 H13 I O3
+ 21 24  0  0  1  0            999 V2000
+    4.2215   -0.6125    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    4.9458   -0.2150    0.0000 C   0  0  1  0  0  0  0  0  0  0  0  0
+    3.5160   -0.1846    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    3.5841   -1.0892    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+    4.8704   -1.0712    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+    4.9629    0.6100    0.0000 C   0  0  2  0  0  0  0  0  0  0  0  0
+    5.6496   -0.6429    0.0000 C   0  0  1  0  0  0  0  0  0  0  0  0
+    3.5350    0.6412    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    3.8412   -1.8423    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    4.6352   -1.8309    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    5.6855    1.0623    0.0000 C   0  0  2  0  0  0  0  0  0  0  0  0
+    4.2574    1.0377    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    5.1768    0.2182    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    6.3747   -0.2463    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    2.8286    0.9533    0.0000 I   0  0  0  0  0  0  0  0  0  0  0  0
+    6.3927    0.5780    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    4.2574    1.8423    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+    5.0941   -0.9034    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0
+    4.9629    1.4211    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0
+    5.6365   -1.3702    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0
+    5.6855    1.8275    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0
+  1  2  1  0  0  0  0
+  1  3  1  0  0  0  0
+  1  4  1  0  0  0  0
+  1  5  1  0  0  0  0
+  2  6  1  0  0  0  0
+  2  7  1  0  0  0  0
+  2 18  1  6  0  0  0
+  3  8  2  0  0  0  0
+  4  9  1  0  0  0  0
+  5 10  1  0  0  0  0
+  6 11  1  0  0  0  0
+  6 12  1  0  0  0  0
+  6 19  1  6  0  0  0
+  7 13  1  0  0  0  0
+  7 14  1  0  0  0  0
+  7 20  1  6  0  0  0
+  8 12  1  0  0  0  0
+  8 15  1  0  0  0  0
+  9 10  1  0  0  0  0
+ 11 13  1  0  0  0  0
+ 11 16  1  0  0  0  0
+ 11 21  1  6  0  0  0
+ 12 17  2  0  0  0  0
+ 14 16  2  0  0  0  0
+M  END
+$DTYPE ROOT:RX_ID
+$DATUM 28100547
+$DTYPE ROOT:RX_NVAR
+$DATUM 4
+$DTYPE ROOT:RX_RANK
+$DATUM 103
+$DTYPE ROOT:RX_RTYP
+$DATUM full reaction|has preparation
+$DTYPE ROOT:RX_RCT
+$DATUM C8H7IO3|cyclopenta-1,3-diene
+$DTYPE ROOT:RX_PRO
+$DATUM CCDC-763142
+$DTYPE ROOT:RXD(1):CL
+$DATUM Preparation
+$DTYPE ROOT:RXD(1):STP
+$DATUM 1
+$DTYPE ROOT:RXD(1):TIM
+$DATUM 0.5
+$DTYPE ROOT:RXD(1):T
+$DATUM -78
+$DTYPE ROOT:RXD(1):RXDES
+$DATUM Scheme or table
+$DTYPE ROOT:RXD(1):COM
+$DATUM enantioselective reaction
+$DTYPE ROOT:RXD(1):YPRO
+$DATUM CCDC-763142
+$DTYPE ROOT:RXD(1):YD
+$DATUM 97 percent
+$DTYPE ROOT:RXD(1):NYD
+$DATUM 97
+$DTYPE ROOT:RXD(1):YDO
+$DATUM 92 percent ee
+$DTYPE ROOT:RXD(1):RGT
+$DATUM (S)-o-tol-Corey-Bakshi-Shibata catalyst
+$DTYPE ROOT:RXD(1):SOL
+$DATUM dichloromethane
+$DTYPE ROOT:RXD(1):citation
+$DATUM 75211669; Article; Kim, Geon; Kim, Myungjo J.; Chung, Garam; Lee, Hee-Yoon; Han, Sunkyu; Organic Letters; vol. 20; 21; (2018); p. 6886 - 6890; 
+$DTYPE ROOT:RXD(2):CL
+$DATUM Preparation
+$DTYPE ROOT:RXD(2):STP
+$DATUM 1
+$DTYPE ROOT:RXD(2):TIM
+$DATUM 0.5
+$DTYPE ROOT:RXD(2):T
+$DATUM -78
+$DTYPE ROOT:RXD(2):COND
+$DATUM Inert atmosphere
+$DTYPE ROOT:RXD(2):TYP
+$DATUM Diels-Alder reaction
+$DTYPE ROOT:RXD(2):LCN
+$DATUM scheme or table
+$DTYPE ROOT:RXD(2):COM
+$DATUM optical yield given as %ee|enantioselective reaction
+$DTYPE ROOT:RXD(2):YPRO
+$DATUM CCDC-763142
+$DTYPE ROOT:RXD(2):YD
+$DATUM 95 percent
+$DTYPE ROOT:RXD(2):NYD
+$DATUM 95
+$DTYPE ROOT:RXD(2):RGT
+$DATUM (S)-o-tol-Corey-Bakshi-Shibata catalyst
+$DTYPE ROOT:RXD(2):SOL
+$DATUM dichloromethane
+$DTYPE ROOT:RXD(2):citation
+$DATUM 8898582; Article; Jin, Mng Yu; Hwang, Geum-Sook; Chae, Hee H; Jung, Sun Hee; Ryu, Do Hyun; Bulletin of the Korean Chemical Society; vol. 31; 3; (2010); p. 727 - 730; 
+$DTYPE ROOT:RXD(3):CL
+$DATUM Preparation
+$DTYPE ROOT:RXD(3):STP
+$DATUM 1
+$DTYPE ROOT:RXD(3):TIM
+$DATUM 1
+$DTYPE ROOT:RXD(3):T
+$DATUM -78
+$DTYPE ROOT:RXD(3):COND
+$DATUM Inert atmosphere
+$DTYPE ROOT:RXD(3):TYP
+$DATUM Diels-Alder reaction
+$DTYPE ROOT:RXD(3):LCN
+$DATUM scheme or table
+$DTYPE ROOT:RXD(3):COM
+$DATUM optical yield given as %ee|enantioselective reaction
+$DTYPE ROOT:RXD(3):YPRO
+$DATUM CCDC-763142
+$DTYPE ROOT:RXD(3):YD
+$DATUM 94 percent
+$DTYPE ROOT:RXD(3):NYD
+$DATUM 94
+$DTYPE ROOT:RXD(3):RGT
+$DATUM (S)-o-tol-Corey-Bakshi-Shibata catalyst
+$DTYPE ROOT:RXD(3):SOL
+$DATUM dichloromethane
+$DTYPE ROOT:RXD(3):citation
+$DATUM 8933189; Article; Chae, Hee Il; Hwang, Geum-Sook; Jin, Ming Yu; Ryu, Do Hyun; Bulletin of the Korean Chemical Society; vol. 31; 4; (2010); p. 1047 - 1050; 
+$DTYPE ROOT:RXD(4):CL
+$DATUM Preparation
+$DTYPE ROOT:RXD(4):LB
+$DATUM 5
+$DTYPE ROOT:RXD(4):TXT
+$DATUM Preparation Example 5>; Preparation of (.R,4S,4aR,8aS)-l ,4,4a,8a-tetrahydro-7-iodo-spirol ,3-dioxolen- 2,5(8H)-[ 1 ,4]methanonaphthalen-8-one (3); eta-3With a catalyst of oxazaborolidine (0.160 mmol)
+ prepared in accordance with a reference ((S)-form, Ryu, D. H. et al J. Am. Chem. Soc, 2002, 124, 9992), CH2Cl2 (1.5 mL) was stirred and trifluoromethanesulfonic acid (12 mul, 0.133 mmol) was slowly a
+dded thereto at -30 "C . Solid 2 (185 mg, 0.665 mmol) was dissolved in CH2Cl2 (1.5 mL) and added thereto at -78 C. Cyclopentadiene (218 betai, 2.66 mmol) was slowly added and the mixture was stirred f
+or 2 hours. Proceeding of reaction was observed through TLC. Et3N(20 mui) was added to complete the reaction. The resulting product was evaporated to remove solvents, and purified using silica gel chr
+omatography (EtOAc: Hexane= 1:5). 220 mg (94%) of title compound was obtained as slight yellow liquid.TLC Rf 0.34 (EtOAc: Hexane= 1 :3)FT-IR 2981, 2880, 2357, 1671, 1604, 1339 cm"1[(X]26D -492 (c 0.5,
+ CHCl3) HPLC (chiralcel OJ-H), 'PrOH/hexane (v/v=10:90), flow rate 1.0 mL min 1) : tR =19.7 min(R-form major, 95 % ee), tR= 22.5 min (S-form major, 97 % ee)1H NMR (300 MHz, CDCl3) delta 7.07 (d, IH, J
+= 1 Hz), 6.08 (dd, IH, J= 2.7, 5.4 Hz), 5.85 (dd, IH, J= 2.7, 5.7 Hz), 4.0 (m, 4H), 3.28 (m, 3H), 2.84 (ddd, IH, J= 3.6, 8.4, 12 Hz), 1.40 (m, 2H) 13C NMR (75 MHz, CDCl3) delta 202.2, 153.8, 135.9, 13
+3.4, 105.4, 65.5, 64.5, 50.8,48.6, 46.6, 46.4, 34.9LRMS calcd for Ci3Hi3IO3: 343.99
+$DTYPE ROOT:RXD(4):STP
+$DATUM 1
+$DTYPE ROOT:RXD(4):TIM
+$DATUM 2
+$DTYPE ROOT:RXD(4):T
+$DATUM -78 - -30
+$DTYPE ROOT:RXD(4):TYP
+$DATUM Diels-Alder Reaction
+$DTYPE ROOT:RXD(4):LCN
+$DATUM Page/Page column 14; 28
+$DTYPE ROOT:RXD(4):YPRO
+$DATUM CCDC-763142
+$DTYPE ROOT:RXD(4):YD
+$DATUM 94 percent
+$DTYPE ROOT:RXD(4):NYD
+$DATUM 94
+$DTYPE ROOT:RXD(4):YDO
+$DATUM 97 percent ee
+$DTYPE ROOT:RXD(4):RGT
+$DATUM trifluorormethanesulfonic acid
+$DTYPE ROOT:RXD(4):CAT
+$DATUM oxazaborolidine (S)-form
+$DTYPE ROOT:RXD(4):SOL
+$DATUM dichloromethane
+$DTYPE ROOT:RXD(4):citation
+$DATUM 8664841; Patent; FOOD SCIENCE CO., LTD.; KOREA BASIC SCIENCE INSTITUTE; KIM, Hwa-Jin; WO2008/140150; A1; (2008); 
+$DTYPE ROOT:COPYRIGHT(1):COPYRIGHT
+$DATUM Copyright (C) 2021 Elsevier Life Sciences IP Limited except certain content provided by third parties. Reaxys is a trademark of Elsevier Life Sciences IP Limited.
+$RFMT $RIREG 28177052
+$RXN
+
+  Marvin       012901211220
+
+  2  1
+$MOL
+
+  Mrv0541 01292112202D          
+C6 H9 N O
+  8  8  0  0  0  0            999 V2000
+   -8.3934   -0.2480    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0
+   -7.7399    0.2223    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -8.1427   -1.0517    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -9.1757    0.0127    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -7.0716   -0.2693    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -7.7399    1.0517    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+   -7.3175   -1.0517    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -9.7929   -0.5334    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+  1  2  1  0  0  0  0
+  1  3  1  0  0  0  0
+  1  4  1  0  0  0  0
+  2  5  1  0  0  0  0
+  2  6  2  0  0  0  0
+  3  7  1  0  0  0  0
+  4  8  2  0  0  0  0
+  5  7  1  0  0  0  0
+M  END
+$MOL
+
+  Mrv0541 01292112202D          
+C6 H6 Cl N
+  8  8  0  0  0  0            999 V2000
+   -4.1252   -0.2334    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -3.7126    0.4810    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -3.7126   -0.9478    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -4.9502   -0.2334    0.0000 Cl  0  0  0  0  0  0  0  0  0  0  0  0
+   -2.8876    0.4810    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -2.8876   -0.9478    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -2.4750   -0.2334    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -1.6500   -0.2334    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0
+  1  2  2  0  0  0  0
+  1  3  1  0  0  0  0
+  1  4  1  0  0  0  0
+  2  5  1  0  0  0  0
+  3  6  2  0  0  0  0
+  5  7  2  0  0  0  0
+  6  7  1  0  0  0  0
+  7  8  1  0  0  0  0
+M  END
+$MOL
+
+  Mrv0541 01292112202D          
+C14 H17 Cl N2 O
+ 18 20  0  0  0  0            999 V2000
+    5.0975   -0.6374    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    5.8063   -0.2200    0.0000 C   0  0  1  0  0  0  0  0  0  0  0  0
+    5.1059   -1.4642    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    4.3780   -0.2331    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    5.8005    0.6086    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0
+    6.5243   -0.6242    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    5.8253   -1.8694    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0
+    4.3969   -1.8826    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    3.6667   -0.6546    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    5.1247    1.0831    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    6.4632    1.0962    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    6.5349   -1.4485    0.0000 C   0  0  2  0  0  0  0  0  0  0  0  0
+    3.6775   -1.4781    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    2.9464   -0.2496    0.0000 Cl  0  0  0  0  0  0  0  0  0  0  0  0
+    5.3756    1.8711    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    4.3484    0.8190    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+    6.1966    1.8826    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    7.2545   -1.8527    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+  1  2  1  0  0  0  0
+  1  3  2  0  0  0  0
+  1  4  1  0  0  0  0
+  2  5  1  1  0  0  0
+  2  6  1  0  0  0  0
+  3  7  1  0  0  0  0
+  3  8  1  0  0  0  0
+  4  9  2  0  0  0  0
+  5 10  1  0  0  0  0
+  5 11  1  0  0  0  0
+  6 12  1  0  0  0  0
+  7 12  1  0  0  0  0
+  8 13  2  0  0  0  0
+  9 13  1  0  0  0  0
+  9 14  1  0  0  0  0
+ 10 15  1  0  0  0  0
+ 10 16  2  0  0  0  0
+ 11 17  1  0  0  0  0
+ 12 18  1  1  0  0  0
+ 15 17  1  0  0  0  0
+M  END
+$DTYPE ROOT:RX_ID
+$DATUM 28177052
+$DTYPE ROOT:RX_NVAR
+$DATUM 5
+$DTYPE ROOT:RX_RANK
+$DATUM 103
+$DTYPE ROOT:RX_RTYP
+$DATUM full reaction|has preparation
+$DTYPE ROOT:RX_RCT
+$DATUM 1-ethenyl-2-pyrrolidinone|4-chloro-aniline
+$DTYPE ROOT:RX_PRO
+$DATUM cis-1-(6-chloro-2-methyl-1,2,3,4-tetrahydroquinoline-4-yl)pyrrolidin-2-one
+$DTYPE ROOT:RX_BIN
+$DATUM 214537
+$DTYPE ROOT:RXD(1):CL
+$DATUM Preparation
+$DTYPE ROOT:RXD(1):LB
+$DATUM 4.1
+$DTYPE ROOT:RXD(1):TI
+$DATUM General procedure for polyaniline salt catalyzed domino tetrahydroquinoline synthesis
+$DTYPE ROOT:RXD(1):TXT
+$DATUM General procedure: In a typical experiment, a mixture of aromatic amine (1 mmol), N-vinyl lactam (2 mmol) and PANI-I2 catalyst (14 wt.% with respect to N-vinyl lactam) under solvent free conditions wa
+s stirred at 80 C for 10 min. ( Scheme 1 ) Then EtOAc was added to the reaction mixture, filtered and separated the catalyst. Organic layer was washed with water followed by brine, dried over anhydrou
+s Na2SO4, and concentrated. The crude material was purified by column chromatography using silica gel (60-120 mesh) and eluted with petroleum ether: ethyl acetate (8:2). Isolated yield was calculated 
+and the margins of error in these experiments are +- 1%. All the products were characterized by 1H NMR, 13C NMR, and mass spectroscopic data and compared with the literature values [16-20]. Recyclabil
+ity experiment was carried out using the separated catalyst, wherein, the separated catalyst was washed with acetone and dried in an oven for 50 C for 2 h.
+$DTYPE ROOT:RXD(1):STP
+$DATUM 1
+$DTYPE ROOT:RXD(1):TIM
+$DATUM 0.166667
+$DTYPE ROOT:RXD(1):T
+$DATUM 80
+$DTYPE ROOT:RXD(1):COND
+$DATUM Green chemistry
+$DTYPE ROOT:RXD(1):RXDES
+$DATUM Experimental part
+$DTYPE ROOT:RXD(1):YPRO
+$DATUM cis-1-(6-chloro-2-methyl-1,2,3,4-tetrahydroquinoline-4-yl)pyrrolidin-2-one
+$DTYPE ROOT:RXD(1):YD
+$DATUM 94 percent
+$DTYPE ROOT:RXD(1):NYD
+$DATUM 94
+$DTYPE ROOT:RXD(1):RGT
+$DATUM polyaniline-iodine
+$DTYPE ROOT:RXD(1):SOL
+$DATUM neat (no solvent)
+$DTYPE ROOT:RXD(1):citation
+$DATUM 35449447; Article; Boddula, Rajender; Srinivasan, Palaniappan; Catalysis Communications; vol. 30; (2013); p. 56 - 60; 
+$DTYPE ROOT:RXD(2):CL
+$DATUM Preparation
+$DTYPE ROOT:RXD(2):STP
+$DATUM 1
+$DTYPE ROOT:RXD(2):TIM
+$DATUM 0.166667
+$DTYPE ROOT:RXD(2):COND
+$DATUM Reflux
+$DTYPE ROOT:RXD(2):TYP
+$DATUM Diels-Alder reaction
+$DTYPE ROOT:RXD(2):LCN
+$DATUM experimental part
+$DTYPE ROOT:RXD(2):COM
+$DATUM diastereoselective reaction
+$DTYPE ROOT:RXD(2):YPRO
+$DATUM cis-1-(6-chloro-2-methyl-1,2,3,4-tetrahydroquinoline-4-yl)pyrrolidin-2-one
+$DTYPE ROOT:RXD(2):YD
+$DATUM 93 percent
+$DTYPE ROOT:RXD(2):NYD
+$DATUM 93
+$DTYPE ROOT:RXD(2):RGT
+$DATUM indium(III) chloride
+$DTYPE ROOT:RXD(2):SOL
+$DATUM water
+$DTYPE ROOT:RXD(2):citation
+$DATUM 9047362; Article; Varma, P. Prabhakara; Srinivasa, Aswathnarayana; Mahadevan, Kittappa M.; Synthetic Communications; vol. 41; 15; (2011); p. 2186 - 2194; 
+$DTYPE ROOT:RXD(3):CL
+$DATUM Preparation
+$DTYPE ROOT:RXD(3):STP
+$DATUM 1
+$DTYPE ROOT:RXD(3):SNR
+$DATUM 2
+$DTYPE ROOT:RXD(3):TIM
+$DATUM 3
+$DTYPE ROOT:RXD(3):T
+$DATUM 50
+$DTYPE ROOT:RXD(3):TYP
+$DATUM imino Diels-Alder reaction
+$DTYPE ROOT:RXD(3):LCN
+$DATUM experimental part
+$DTYPE ROOT:RXD(3):YPRO
+$DATUM cis-1-(6-chloro-2-methyl-1,2,3,4-tetrahydroquinoline-4-yl)pyrrolidin-2-one
+$DTYPE ROOT:RXD(3):YD
+$DATUM 92 percent
+$DTYPE ROOT:RXD(3):NYD
+$DATUM 92
+$DTYPE ROOT:RXD(3):SRCT
+$DATUM 1-ethenyl-2-pyrrolidinone|4-chloro-aniline
+$DTYPE ROOT:RXD(3):RGT
+$DATUM 4-nitrophthalic acid|sodium hydrogencarbonate
+$DTYPE ROOT:RXD(3):SOL
+$DATUM acetonitrile|water|acetonitrile
+$DTYPE ROOT:RXD(3):citation
+$DATUM 8706896; Article; Srinivasa, Aswathanarayana; Mahadevan, Kittappa M.; Hulikal, Vijaykumar; Synthetic Communications; vol. 39; 1; (2009); p. 93 - 101; 
+$DTYPE ROOT:RXD(4):CL
+$DATUM Preparation
+$DTYPE ROOT:RXD(4):TI
+$DATUM General Procedure for the Synthesis of 2-Methyl-4-amino-1,2,3,4-tetrahydroquinolines.
+$DTYPE ROOT:RXD(4):TXT
+$DATUM General procedure: A mixture of the substituted anilines (1.0 mmol), N-vinyl-2-pyrrolidinone (3.0 mmol) or N-vinylcaprolactam (3.0 mmol) and IONPs (11 mg, 5 mol%) in acetonitrile (5 mL) was heated und
+er reflux, and the reaction progress was monitored by thin layer chromatography. After completion of the reaction, the catalyst was recovered by an external magnetic field. The residues were washed wi
+th dichloromethane and dried at 80 C. The recovered catalyst was then reused in other reactions under identical conditions. After recovering the catalyst, the solvent was removed using a reduced press
+ure evaporator. The residue was purified by column chromatography on a silica gel to give the product.
+$DTYPE ROOT:RXD(4):STP
+$DATUM 1
+$DTYPE ROOT:RXD(4):TIM
+$DATUM 4
+$DTYPE ROOT:RXD(4):COND
+$DATUM Reflux|Green chemistry
+$DTYPE ROOT:RXD(4):RXDES
+$DATUM Experimental part
+$DTYPE ROOT:RXD(4):YPRO
+$DATUM cis-1-(6-chloro-2-methyl-1,2,3,4-tetrahydroquinoline-4-yl)pyrrolidin-2-one
+$DTYPE ROOT:RXD(4):YD
+$DATUM 92 percent
+$DTYPE ROOT:RXD(4):NYD
+$DATUM 92
+$DTYPE ROOT:RXD(4):RGT
+$DATUM iron oxide nanoparticles with Saururus chinensis (S. chinensis) leaf extract (IONPs)
+$DTYPE ROOT:RXD(4):SOL
+$DATUM acetonitrile
+$DTYPE ROOT:RXD(4):citation
+$DATUM 68258015; Article; Basavegowda, Nagaraj; Mishra, Kanchan; Lee, Yong Rok; Joh, Young-Gull; Bulletin of the Korean Chemical Society; vol. 37; 2; (2016); p. 142 - 147; 
+$DTYPE ROOT:RXD(5):CL
+$DATUM Preparation
+$DTYPE ROOT:RXD(5):STP
+$DATUM 1
+$DTYPE ROOT:RXD(5):TIM
+$DATUM 8
+$DTYPE ROOT:RXD(5):COND
+$DATUM Reflux
+$DTYPE ROOT:RXD(5):TYP
+$DATUM imino Diels-Alder reaction
+$DTYPE ROOT:RXD(5):LCN
+$DATUM experimental part
+$DTYPE ROOT:RXD(5):YPRO
+$DATUM cis-1-(6-chloro-2-methyl-1,2,3,4-tetrahydroquinoline-4-yl)pyrrolidin-2-one
+$DTYPE ROOT:RXD(5):YD
+$DATUM 84 percent
+$DTYPE ROOT:RXD(5):NYD
+$DATUM 84
+$DTYPE ROOT:RXD(5):RGT
+$DATUM iron(III) chloride
+$DTYPE ROOT:RXD(5):SOL
+$DATUM acetonitrile
+$DTYPE ROOT:RXD(5):citation
+$DATUM 20131001; Article; Chen, Ye; Lee, Yong Rok; Bulletin of the Korean Chemical Society; vol. 32; 7; (2011); p. 2485 - 2488; 
+$DTYPE ROOT:COPYRIGHT(1):COPYRIGHT
+$DATUM Copyright (C) 2021 Elsevier Life Sciences IP Limited except certain content provided by third parties. Reaxys is a trademark of Elsevier Life Sciences IP Limited.
