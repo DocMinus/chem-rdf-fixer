@@ -16,8 +16,15 @@ In Knime, the Erlwood extenstion "Chemical Reaction File Reader" won't work at a
 V3.6, V3.7, V3.8 (not tested with lower versions, should work though)<br>
 Windows or Linux. MacOS not tested. Preferably an (Ana)Conda installation.
 #### RDKIT 
-`conda install -c conda-forge rdkit`
+You will have to install this first, before installing the package, since not available via setup.<br>
+`conda install -c conda-forge rdkit`<br>
 (yields the latest one compatible with your current Python version)
+
+### Installation
+If you downloaded/cloned the code:<br>
+`python setup.py install`<br>
+or directly from the repository<br>
+`python -m pip install git+https://github.com/DocMinus/chem-rdf-fixer.git`
 
 #### Optional: Jupyter notebook
 This is only if you want to run the .ipynb file from your browser:
@@ -29,31 +36,28 @@ e.g.:
 
 
 ### Usage:
-`rdf_fixer.convert("input_RDF_filename", "corrected_RDF_filename", "CSV_filename")`<br>
+`rdf_fixer.fix("input RDF filename or path containing rdf files")`<br>
 <br>
-The module contains an optional helper function to analyse directories for rdf files:<br>
-`rdf_fixer.subdir_walk("input_RDF_filename")`<br>
-This returns three ready lists which can be submitted to the convert function (via e.g. a for loop).
 
 ### Implement e.g. via the enclosed example script or Jupyter Notebook:<br>
-`convert_example.py "filename.rdf"` for single file useage (with or without quotes)<br>
-`convert_example.py "/directory/"` for RDF files in directory including all subdirectories <br>
-**New:** added a Jupyter notebook:<br>
+`convert_example.py "./filename.rdf"` for single file usage (with or without quotes)<br>
+`convert_example.py /directory/` for RDF files in directory including all subdirectories <br>
+<br>
+**New V1.05:** added a Jupyter notebook:<br>
 in your shell or cmd line type:
 `jupyter notebook convert_example.ipynb`<br>
-Follow instructions within.
-
+Follow instructions within.<br>
+**New V2.00:** rewritten and simplified the module. Added setup to do pip install from git repo.
 ### Testing
 The _testfiles_ folder contains two RDF files for a quick test with the Scifinder one containing an erroneous (i.e. missing) structre. 
 Please note that  copyright for the enclosed test data lies with the respective companies (see also License section).<br>
 
 ### Notes:
-The parsing is by no means perfect, though a best effort was made. Suggestions for changes are welcome, please submitt an issue or do your own fork.<br> 
-No package was made, seems overkill (so far).<br>
+The parsing is by no means perfect, though a best effort was made. Suggestions for changes are welcome, please submit an issue or do your own fork.<br> 
 Converting the current function(s) into a class has also been abandoned, there is no point really, since it doesn't have to be persistent the way it is applied here.<br>
 
 ### License
-Independent of the code or whatever license, the testfiles provided are not to be included for further distribution other than ones initial testing.<br>
+Independent of the code or whatever license, the test files provided are not to be included for further distribution other than ones initial testing.<br>
 The copyright for the data for these two files lies with the providers (ACS, resp. Elsevier Life Sciences IP Limited) and not with the author or anyone reusing/changing this code.<br>
 For the code section: Copyright (c) 2021 DocMinus, MIT License (see also LICENSE file).
 

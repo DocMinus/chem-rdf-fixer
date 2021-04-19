@@ -1,19 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Created on Tues Feb 23 21:00:00 2021
 Chemical RDF converter & fixer.
-Version 1.04b (Apr 03, 12:12:00 2021)
+Version 2.00 (Apr 19, 21:12:00 2021)
+
+run by calling
+rdf_fixer.convert(filename or path)
 
 @author: Alexander Minidis (DocMinus)
 
 license: MIT License
 Copyright (c) 2021 DocMinus
 """
-
-import warnings
-
-warnings.filterwarnings("ignore")
 
 import os
 import re
@@ -22,34 +20,44 @@ import rdkit.Chem as rdc
 from collections import OrderedDict
 
 
-def subdir_walk(root_dir: str) -> list:
-    """Retrieving all .RDF files in a subdirectory recursively. Return as list.
-    No error checking is done within this function (such as if file and not path)
-    Parts of snippet originated on Reddit somewhere, forgot where though.
+def fix(RDF_IN: str):
+    """Retrieving all .RDF files in a subdirectory recursively.
+    Then submit to conversion (i.e. fixing)
+    Parts of os.walk snippet originated on Reddit somewhere, forgot where though.
     Args:
-        root_dir = directory and subdirectories to scan
+        RDF_IN = filename, alt. directory and subdirectories to scan
     Returns:
-        zipped list of these three lists:
-            file_list_in = list of all rdf files incl. their path
-            file_list_ok = list of the (future) corrected rdf files
-            file_list_csv = list of final output csv files
+        None. Files are written directly.
     """
 
     file_list_in = []
     file_list_ok = []
     file_list_csv = []
-    for subdir, dirs, files in os.walk(root_dir):
-        for file in files:
-            if file.endswith(("rdf", "RDF")):
-                file_list_in.append(os.path.join(subdir, file))
-                file_list_ok.append(
-                    os.path.join(subdir, os.path.splitext(file)[0] + "_fixed.rdf")
-                )
-                file_list_csv.append(
-                    os.path.join(subdir, os.path.splitext(file)[0] + ".csv")
-                )
 
-    return zip(file_list_in, file_list_ok, file_list_csv)
+    if os.path.isfile(RDF_IN):
+        if RDF_IN.endswith(("rdf", "RDF")):
+            file_list_in.append(os.path.join(RDF_IN))
+            file_list_ok.append(os.path.splitext(RDF_IN)[0] + "_fixed.rdf")
+            file_list_csv.append(os.path.splitext(RDF_IN)[0] + ".csv")
+
+    elif os.path.isdir(RDF_IN):
+        for subdir, dirs, files in os.walk(RDF_IN):
+            for file in files:
+                if file.endswith(("rdf", "RDF")):
+                    file_list_in.append(os.path.join(subdir, file))
+                    file_list_ok.append(
+                        os.path.join(subdir, os.path.splitext(file)[0] + "_fixed.rdf")
+                    )
+                    file_list_csv.append(
+                        os.path.join(subdir, os.path.splitext(file)[0] + ".csv")
+                    )
+
+    zipped = zip(file_list_in, file_list_ok, file_list_csv)
+    for file_in, file_ok, file_csv in zipped:
+        print("Converting file: ", file_in)
+        convert(file_in, file_ok, file_csv)
+
+    return None
 
 
 def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
@@ -60,7 +68,6 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
         RDF_CSV_FILE: resulting CSV file (incl. path)
     Returns:
         None - output are the new files.
-        :rtype: object
     """
 
     ##############################################################

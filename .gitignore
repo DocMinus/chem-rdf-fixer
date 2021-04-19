@@ -1,3 +1,10 @@
 # Pycharm IDE
 **/.idea/
 **/__pycache__
+
+**/.ipynb_checkpoints
+
+# other
+**/src
+*.csv
+*_fixed.rdf
