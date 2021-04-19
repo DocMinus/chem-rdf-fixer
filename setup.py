@@ -2,9 +2,8 @@ from setuptools import setup
 
 setup(
     name="rdf_fixer",
-    version="1.04b",
-    description="chemical rdf fixer for reaxys and scifinder exports",
-    # url='',
+    version="2.00",
+    description="Chemical rdf fixer for Reaxys and SciFinder exports",
     author="Alexander Minidis, DocMinus",
     author_email="alex@pharmakarma.org",
     license="MIT",
