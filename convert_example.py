@@ -2,7 +2,7 @@
 """
 Created on Tues Feb 23 21:00:00 2021
 RDF converter & fixer
-Version 1.04b (Apr 03 12:12:00 2021)
+Version 1.05 (Apr 19 13:15:00 2021)
 
 @author: Alexander Minidis (DocMinus)
 
@@ -48,9 +48,9 @@ def main():
 
     elif os.path.isdir(RDF_IN):
         zipped = rdf_fixer.subdir_walk(RDF_IN)
-        for x, y, z in zipped:
-            print("Converting file: ", x)
-            rdf_fixer.convert(x, y, z)
+        for file_in, file_ok, file_csv in zipped:
+            print("Converting file: ", file_in)
+            rdf_fixer.convert(file_in, file_ok, file_csv)
     else:
         print("Input error!")
 

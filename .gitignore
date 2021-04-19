@@ -1,2 +1,3 @@
-/.idea/
-
+# Pycharm IDE
+**/.idea/
+**/__pycache__
