@@ -34,10 +34,10 @@ This is only if you want to run the .ipynb file from your browser:
 e.g.:
 `from rdfmodule import rdf_fixer`
 
-
 ### Usage:
 `rdf_fixer.fix("input RDF filename or path containing rdf files")`<br>
-<br>
+or<br>
+`new_files_as_zip = rdf_fixer.fix(....)`<br>
 
 ### Implement e.g. via the enclosed example script or Jupyter Notebook:<br>
 `convert_example.py "./filename.rdf"` for single file usage (with or without quotes)<br>
@@ -47,7 +47,9 @@ e.g.:
 in your shell or cmd line type:
 `jupyter notebook convert_example.ipynb`<br>
 Follow instructions within.<br>
-**New V2.00:** rewritten and simplified the module. Added setup to do pip install from git repo.
+**New V2.00:** rewritten and simplified the module. Added setup to do pip install from git repo.<br>
+**New V2.01:** function returns a zipped list containing all file names
+
 ### Testing
 The _testfiles_ folder contains two RDF files for a quick test with the Scifinder one containing an erroneous (i.e. missing) structre. 
 Please note that  copyright for the enclosed test data lies with the respective companies (see also License section).<br>

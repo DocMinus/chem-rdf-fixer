@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 """
 Chemical RDF converter & fixer.
-Version 2.00 (Apr 19, 21:12:00 2021)
+Version 2.01 (Apr 20, 10:12:00 2021)
 
 run by calling
 rdf_fixer.convert(filename or path)
+(optional: returns list of new filenames)
 
 @author: Alexander Minidis (DocMinus)
 
@@ -20,14 +21,15 @@ import rdkit.Chem as rdc
 from collections import OrderedDict
 
 
-def fix(RDF_IN: str):
+def fix(RDF_IN: str) -> "zipped":
     """Retrieving all .RDF files in a subdirectory recursively.
     Then submit to conversion (i.e. fixing)
     Parts of os.walk snippet originated on Reddit somewhere, forgot where though.
     Args:
         RDF_IN = filename, alt. directory and subdirectories to scan
     Returns:
-        None. Files are written directly.
+        zipped List of the new file names
+        Order: input_file; fixed_file; csv_file
     """
 
     file_list_in = []
@@ -53,11 +55,12 @@ def fix(RDF_IN: str):
                     )
 
     zipped = zip(file_list_in, file_list_ok, file_list_csv)
+    # note: zip gets unpacked upon usage and disappears
     for file_in, file_ok, file_csv in zipped:
         print("Converting file: ", file_in)
         convert(file_in, file_ok, file_csv)
 
-    return None
+    return zip(file_list_in, file_list_ok, file_list_csv)
 
 
 def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
