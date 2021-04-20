@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Chemical RDF converter & fixer.
-Version 2.01 (Apr 20, 10:12:00 2021)
+Version 2.2 (Apr 20, 20:00:00 2021)
 
 run by calling
 rdf_fixer.convert(filename or path)

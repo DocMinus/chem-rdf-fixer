@@ -2,7 +2,7 @@
 """
 Created on Tues Feb 23 21:00:00 2021
 RDF converter & fixer
-Version 2.01 (Apr 20 10:45:00 2021)
+Version 2.2 (Apr 20 20:01:00 2021)
 
 @author: Alexander Minidis (DocMinus)
 
