@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 """
 Chemical RDF converter & fixer.
-Version 2.2 (Apr 20, 20:00:00 2021)
+Version 2.3 (Dec 28, 14:25:00 2021)
+
+Added mol sanitization and try/catch
 
 run by calling
 rdf_fixer.convert(filename or path)
@@ -17,8 +19,13 @@ Copyright (c) 2021 DocMinus
 import os
 import re
 import pandas as pd
-import rdkit.Chem as rdc
 from collections import OrderedDict
+import rdkit.Chem as rdc
+from rdkit.Chem.MolStandardize import rdMolStandardize
+from rdkit import RDLogger
+
+# Important, or else waaaay too many RDkit details in output
+RDLogger.logger().setLevel(RDLogger.CRITICAL)
 
 
 def fix(RDF_IN: str) -> "zipped":
@@ -243,7 +250,7 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
                 number_products = int(x[1])
                 number_molecules = number_reagents + number_products
                 # create fresh list of max no of molecules, for use in $MOL block
-                # yes, always same size within a *given file*, could change from file to file(!)
+                # yes, always same size within a *given file*, can change from file to file(!)
                 for i in range(number_molecules):
                     molecule.append([])
 
@@ -270,14 +277,33 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
                 num_mols_this_instance = len(molecule)
                 # should always be max_mol now, so doesn't matter
 
-                for mol in range(len(molecule)):
+                for mol in range(num_mols_this_instance):
                     mol_string = "".join(molecule[mol])
                     if mol_string == "":
                         smiles = ""
                     else:
-                        smiles = rdc.MolToSmiles(
-                            rdc.MolFromMolBlock(mol_string, sanitize=False)
+                        mol = rdc.MolFromMolBlock(mol_string, sanitize=False)
+                        if mol is None:
+                            continue
+
+                        try:
+                            rdc.SanitizeMol(mol)
+                        except ValueError as _e:
+                            print("Error: ", _e)
+                            continue
+
+                        mol.UpdatePropertyCache(strict=False)
+                        rdc.SanitizeMol(
+                            mol,
+                            sanitizeOps=(
+                                rdc.SANITIZE_ALL
+                                ^ rdc.SANITIZE_CLEANUP
+                                ^ rdc.SANITIZE_PROPERTIES
+                            ),
                         )
+                        mol = rdMolStandardize.Normalize(mol)
+                        smiles = rdc.MolToSmiles(mol)
+
                     # some mols might be empty, this if/else positions reagents/products accordingly
                     if counter_reagents + 1 <= number_reagents:
                         my_table.loc[
@@ -290,7 +316,7 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
                         ] = smiles
                         counter_products += 1
 
-                        # reset variables
+                # reset variables
                 iterate_molecules = 0
                 molecule = []
                 mol_string = ""

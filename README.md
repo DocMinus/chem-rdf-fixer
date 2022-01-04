@@ -49,6 +49,8 @@ in your shell or cmd line type:
 Follow instructions within.<br>
 **New V2.00:** rewritten and simplified the module. Added setup to do pip install from git repo.<br>
 **New V2.01:** function returns a zipped list containing all file names
+**New V2.2:** small changes and slight version number format change
+**New V2.3:** added minimum mol sanitizations else errors in structures would make it crash
 
 ### Testing
 The _testfiles_ folder contains two RDF files for a quick test with the Scifinder one containing an erroneous (i.e. missing) structre. 
