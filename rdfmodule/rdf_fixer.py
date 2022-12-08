@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 """
 Chemical RDF converter & fixer.
-Version 2.6 (Feb 09, 14:15:00 2022)
+Version 2.6.1 (Feb 09, 14:15:00 2022)
 Update: Dec 08, 2022.
 Added support for Infochem based rdf files.
-Fixed final issues with Infochem.
+Fixed some issues. Checking for existing fixed files is back.
 
 run by calling
 rdf_fixer.convert(filename or path)
@@ -17,8 +17,10 @@ license: MIT License
 Copyright (c) 2021-2022 DocMinus
 """
 
+
 import os
 import re
+from black import dont_increase_indentation
 import pandas as pd
 from collections import OrderedDict
 import rdkit.Chem as rdc
@@ -29,15 +31,15 @@ from rdkit import RDLogger
 RDLogger.logger().setLevel(RDLogger.CRITICAL)
 
 
-def fix(RDF_IN: str) -> "list":
+def fix(RDF_IN: str) -> list:
     """Retrieving all .RDF files in a subdirectory recursively.
     Then submit to conversion (i.e. fixing)
     Parts of os.walk snippet originated on Reddit somewhere, forgot where though.
+    Rewritten to check for & stop fixing fixed files.
     Args:
         RDF_IN = filename, alt. directory and subdirectories to scan
     Returns:
-        zipped List of the new file names
-        Order: input_file; fixed_file; csv_file
+        Originally None. Current the zipped list of paths. Usefull for Knime.
     """
 
     file_list_in = []
@@ -47,26 +49,50 @@ def fix(RDF_IN: str) -> "list":
     if os.path.isfile(RDF_IN):
         if RDF_IN.endswith(("rdf", "RDF")):
             file_list_in.append(os.path.join(RDF_IN))
-            file_list_ok.append(os.path.splitext(RDF_IN)[0] + "_fixed.rdf")
-            file_list_csv.append(os.path.splitext(RDF_IN)[0] + ".csv")
+            if RDF_IN.endswith("_fixed.rdf"):
+                # checks for existing fixed files and removes from the list
+                # as well as the 'unfixed" file (since already done)
+                print("File already fixed: ", RDF_IN)
+                del file_list_in[-1]
+                file_list_in.remove(RDF_IN)
+                # since single file, could just as well use file_list_in.clear()
+            else:
+                file_list_ok.append(os.path.splitext(RDF_IN)[0] + "_fixed.rdf")
+                file_list_csv.append(os.path.splitext(RDF_IN)[0] + ".csv")
 
     elif os.path.isdir(RDF_IN):
         for subdir, dirs, files in os.walk(RDF_IN):
+            _item_to_remove = []
             for file in files:
                 if file.endswith(("rdf", "RDF")):
-                    file_list_in.append(os.path.join(subdir, file))
-                    file_list_ok.append(
-                        os.path.join(subdir, os.path.splitext(file)[0] + "_fixed.rdf")
-                    )
-                    file_list_csv.append(
-                        os.path.join(subdir, os.path.splitext(file)[0] + ".csv")
-                    )
+                    full_path_in = os.path.join(subdir, file)
+                    file_list_in.append(full_path_in)
+                    if file.endswith("_fixed.rdf"):
+                        # checks for existing fixed files and removes from the list
+                        # as well as the 'unfixed" file (since already done)
+                        print("File already fixed: ", full_path_in)
+                        del file_list_in[-1]
+                        # temp list for later removal of any original
+                        # (not here in case of different file order)
+                        _item_to_remove.append(full_path_in.replace("_fixed", ""))
+                    else:
+                        file_list_ok.append(
+                            os.path.join(
+                                subdir, os.path.splitext(file)[0] + "_fixed.rdf"
+                            )
+                        )
+                        file_list_csv.append(
+                            os.path.join(subdir, os.path.splitext(file)[0] + ".csv")
+                        )
+            for x in _item_to_remove:
+                file_list_in.remove(x)
 
-    zipped = zip(file_list_in, file_list_ok, file_list_csv)
-    # note: zip gets unpacked upon usage and disappears
-    for file_in, file_ok, file_csv in zipped:
-        print("Converting file: ", file_in)
-        convert(file_in, file_ok, file_csv)
+    if len(file_list_in) > 0:
+        zipped = zip(file_list_in, file_list_ok, file_list_csv)
+        # note: zip gets unpacked upon usage and disappears!
+        for file_in, file_ok, file_csv in zipped:
+            print("Converting file: ", file_in)
+            convert(file_in, file_ok, file_csv)
 
     return zip(file_list_in, file_list_ok, file_list_csv)
 
@@ -106,9 +132,12 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
             write_to_file = not (
                 current_line.startswith("$DTYPE") and previous_line.startswith("$RFMT")
             )
-            #here a correction for Infochem RDFS that has one empty row to many
+            # here a correction for Infochem RDFS that has one empty row to many
             if current_line == "\n" and previous_line.startswith("M  END"):
                 continue
+
+            # old entries use lower case rxn. Change to upper case. fast without if check.
+            previous_line = previous_line.replace("rxn:", "RXN:")
 
             if write_to_file:
                 file_out.write(previous_line)
@@ -122,9 +151,9 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
     ####################
 
     def scifi_or_reax(in_file: str) -> str:
-        """Determine if Scifinder, Reaxys or Infochem rdf file
+        """Determine if Scifinder, Reaxys or ICSynth rdf file
         (Scifinder contains 'SCHEME' in the enumeration;
-        Infochem uses "Infochem" in RXN or MOLD field)
+        Infochem uses "Infochem" in RXN or MOL field)
         Returned string is used by multiple string.replace() methods,
         to render script independent of source
 
@@ -207,11 +236,13 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
 
         return da_table, max_reagents, max_products
 
-    ####################################################################
+    ##############################################################
     # Initialize Table and diverse variables
 
     # get string replacement variable depending on source
-    SCI_REAX = scifi_or_reax(RDF_IN_FILE) #switching back to in_file instead of RDF_OK_FILE. 
+    SCI_REAX = scifi_or_reax(
+        RDF_IN_FILE
+    )  # switching back to in_file instead of RDF_OK_FILE.
     # build table according to files specs. get max no of reagents & products at the same time.
     my_table, max_reagents, max_products = build_empty_table(RDF_OK_FILE, SCI_REAX)
 
@@ -220,7 +251,7 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
 
     #
     ############### GET MOLECULES #############
-    # (structure same for Reaxys and Scifinder)
+    # (structure same for Reaxys and Scifinder - and Infochem(?))
     #
 
     flag = 0
@@ -261,7 +292,7 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
                 number_products = int(x[1])
                 number_molecules = number_reagents + number_products
                 # create fresh list of max no of molecules, for use in $MOL block
-                # yes, always same size within a *given file*, can change from file to file(!)
+                # yes, always same size within a *given file*, could change from file to file(!)
                 for i in range(number_molecules):
                     molecule.append([])
 

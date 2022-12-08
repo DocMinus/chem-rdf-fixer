@@ -1,10 +1,10 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 # Chemistry RDF fixer / converter
 Converts chemistry containing RDF files stemming from Scifinder or Reaxys. A new addition is the support for Infochem's ICsynth RDFs.<br>
-It fixes missing molecule blocks by removing corresponding entries entirely.<br>
+It fixes missing molecule blocks by removing corresponding entries entirely and some potential small errors (remove certain empty lines, or use uppercase for certain tags)<br>
 The resulting fixed RDF file is saved, as well as being converted to a tab separated CSV file.<br>
 Structures in CSV are in SMILES format.<br>
-Other sources e.g. MarvinSketch or ChemDraw should work but have not been thoroughly enough tested.<br>
+Other sources e.g. MarvinSketch or ChemDraw should work with these converted files but have not been thoroughly enough tested.<br>
 
 ## Why would you need this?
 Because RDF files that contain a missing structure might throw errors in certain programs or even make them crash.<br>
@@ -18,13 +18,14 @@ Windows or Linux. MacOS not tested. Preferably an (Ana)Conda installation.
 #### RDKIT 
 You will have to install this first, before installing the package, since not available via setup.<br>
 `conda install -c conda-forge rdkit`<br>
-(yields the latest one compatible with your current Python version)
+(yields the latest one compatible with your current Python version)<br>
 
 ### Installation
 If you downloaded/cloned the code:<br>
 `python setup.py install`<br>
 or directly from the repository<br>
-`python -m pip install git+https://github.com/DocMinus/chem-rdf-fixer.git`
+`python -m pip install git+https://github.com/DocMinus/chem-rdf-fixer.git` <br>
+Updating to a newer version via `--upgrade` or `-U` flag.<br>
 
 #### Optional: Jupyter notebook
 This is only if you want to run the .ipynb file from your browser:
@@ -48,10 +49,11 @@ in your shell or cmd line type:
 `jupyter notebook convert_example.ipynb`<br>
 Follow instructions within.<br>
 **New V2.00:** rewritten and simplified the module. Added setup to do pip install from git repo.<br>
-**New V2.01:** function returns a zipped list containing all file names
-**New V2.2:** small changes and slight version number format change
-**New V2.3:** added minimum mol sanitizations else errors in structures would make it crash
-**New V2.6:** addded support for ICSynth files.
+**New V2.01:** function returns a zipped list containing all file names.<br>
+**New V2.2:** small changes and slight version number format change.<br>
+**New V2.3:** added minimum mol sanitizations else errors in structures would make it crash.<br>
+**New V2.6:** addded support for ICSynth files.<br>
+**V2.6.1:** some bug fixes and (re)introduction of check for pre-existing fixed files.<br>
 
 ### Testing
 The _testfiles_ folder contains three RDF files for a quick test with the Scifinder one containing an erroneous (i.e. missing) structre. 
