@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 """
 Chemical RDF converter & fixer.
-Version 2.3 (Dec 28, 14:25:00 2021)
-
-Added mol sanitization and try/catch
+Version 2.6 (Feb 09, 14:15:00 2022)
+Update: Dec 08, 2022.
+Added support for Infochem based rdf files.
+Fixed final issues with Infochem.
 
 run by calling
 rdf_fixer.convert(filename or path)
@@ -13,7 +14,7 @@ rdf_fixer.convert(filename or path)
 @author: Alexander Minidis (DocMinus)
 
 license: MIT License
-Copyright (c) 2021 DocMinus
+Copyright (c) 2021-2022 DocMinus
 """
 
 import os
@@ -28,7 +29,7 @@ from rdkit import RDLogger
 RDLogger.logger().setLevel(RDLogger.CRITICAL)
 
 
-def fix(RDF_IN: str) -> "zipped":
+def fix(RDF_IN: str) -> "list":
     """Retrieving all .RDF files in a subdirectory recursively.
     Then submit to conversion (i.e. fixing)
     Parts of os.walk snippet originated on Reddit somewhere, forgot where though.
@@ -105,6 +106,9 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
             write_to_file = not (
                 current_line.startswith("$DTYPE") and previous_line.startswith("$RFMT")
             )
+            #here a correction for Infochem RDFS that has one empty row to many
+            if current_line == "\n" and previous_line.startswith("M  END"):
+                continue
 
             if write_to_file:
                 file_out.write(previous_line)
@@ -118,9 +122,10 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
     ####################
 
     def scifi_or_reax(in_file: str) -> str:
-        """Determine if Scifinder or Reaxys rdf file
-        (Scifinder contains 'SCHEME' in the enumeration)
-        Returned string is multiple string.replace() methods,
+        """Determine if Scifinder, Reaxys or Infochem rdf file
+        (Scifinder contains 'SCHEME' in the enumeration;
+        Infochem uses "Infochem" in RXN or MOLD field)
+        Returned string is used by multiple string.replace() methods,
         to render script independent of source
 
         Args:
@@ -128,7 +133,7 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
                            the original one would work as well;
                            alt even global variable possible instead)
         Returns:
-            SCI_REAX (str): "RXN:" (scifinder) or string "ROOT:" (reaxys)
+            SCI_REAX (str): "RXN:" (scifinder & Infochem) or "ROOT:" (reaxys)
         """
 
         f = open(in_file)
@@ -136,14 +141,20 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
 
         for i in range(NUMBER_OF_LINES):
             line_three = f.readline()
+        _scireax = "RXN:" if re.match(".+SCHEME", line_three) else "ROOT:"
+        # since this is ambigeous between Infochem and Reaxys, another check 3 lines after:
+        for i in range(NUMBER_OF_LINES):
+            line_six = f.readline()
+        _scireaxinfochem = "RXN:" if re.match(".+INFOCHEM", line_six) else _scireax
 
-        return "RXN:" if re.match(".+SCHEME", line_three) else "ROOT:"
+        f.close()
+        return _scireaxinfochem
 
     def build_empty_table(in_file: str, SCI_REAX: str):
-        """Scans file three times to build a pandas df used as main table
+        """Scans file (unfortunately) three times to build a pandas df used as main table
         Args:
             in_file (str): filename of the corrected file: RDF_OK_FILE
-            SCI_REAX (str): "RXN:" (scifinder) or string "ROOT:" (reaxys) used in replacements
+            SCI_REAX (str): "RXN:" (scifinder/infochem) or string "ROOT:" (reaxys) used in replacements
         Returns:
             da_table (object): the (empty) pandas df working table
             max_reagents (int): number for later positioning of reagents smiles in table
@@ -196,11 +207,11 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
 
         return da_table, max_reagents, max_products
 
-    ##############################################################
+    ####################################################################
     # Initialize Table and diverse variables
 
     # get string replacement variable depending on source
-    SCI_REAX = scifi_or_reax(RDF_OK_FILE)
+    SCI_REAX = scifi_or_reax(RDF_IN_FILE) #switching back to in_file instead of RDF_OK_FILE. 
     # build table according to files specs. get max no of reagents & products at the same time.
     my_table, max_reagents, max_products = build_empty_table(RDF_OK_FILE, SCI_REAX)
 
@@ -354,8 +365,8 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
 
     #
     ### Extract Experimental Procedure ###
-    # Multiline, both,
-    # Reaxys and Scifinder
+    # Multiline, for all,
+    # Reaxys, Scifinder, Infochem
     #
 
     flag = 0
@@ -376,7 +387,7 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
             continue
 
         # get experimental section
-        if SCI_REAX == "RXN:":
+        if SCI_REAX.upper() == "RXN:":
             if re.match(".+EXP_PROC", previous_line) or flag == 5:
                 # start of the experimental section. spans over multiple line
                 if re.match(".+EXP_PROC", previous_line):

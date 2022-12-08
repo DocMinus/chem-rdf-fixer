@@ -1,10 +1,10 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 # Chemistry RDF fixer / converter
-Converts chemistry containing RDF files stemming from Scifinder or Reaxys.<br>
+Converts chemistry containing RDF files stemming from Scifinder or Reaxys. A new addition is the support for Infochem's ICsynth RDFs.<br>
 It fixes missing molecule blocks by removing corresponding entries entirely.<br>
 The resulting fixed RDF file is saved, as well as being converted to a tab separated CSV file.<br>
 Structures in CSV are in SMILES format.<br>
-Other sources e.g. MarvinSketch or ChemDraw should work but have not yet been tested #TODO<br>
+Other sources e.g. MarvinSketch or ChemDraw should work but have not been thoroughly enough tested.<br>
 
 ## Why would you need this?
 Because RDF files that contain a missing structure might throw errors in certain programs or even make them crash.<br>
@@ -51,9 +51,10 @@ Follow instructions within.<br>
 **New V2.01:** function returns a zipped list containing all file names
 **New V2.2:** small changes and slight version number format change
 **New V2.3:** added minimum mol sanitizations else errors in structures would make it crash
+**New V2.6:** addded support for ICSynth files.
 
 ### Testing
-The _testfiles_ folder contains two RDF files for a quick test with the Scifinder one containing an erroneous (i.e. missing) structre. 
+The _testfiles_ folder contains three RDF files for a quick test with the Scifinder one containing an erroneous (i.e. missing) structre. 
 Please note that  copyright for the enclosed test data lies with the respective companies (see also License section).<br>
 
 ### Notes:
@@ -63,5 +64,5 @@ Converting the current function(s) into a class has also been abandoned, there i
 ### License
 Independent of the code or whatever license, the test files provided are not to be included for further distribution other than ones initial testing.<br>
 The copyright for the data for these two files lies with the providers (ACS, resp. Elsevier Life Sciences IP Limited) and not with the author or anyone reusing/changing this code.<br>
-For the code section: Copyright (c) 2021 DocMinus, MIT License (see also LICENSE file).
+For the code section: Copyright (c) 2021-2022 DocMinus, MIT License (see also LICENSE file).
 
