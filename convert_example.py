@@ -2,12 +2,12 @@
 """
 Created on Tues Feb 23 21:00:00 2021
 RDF converter & fixer
-Version 2.2 (Apr 20 20:01:00 2021)
+Version 2.2.1 (Dec 08 12:56:00 2022)
 
 @author: Alexander Minidis (DocMinus)
 
 license: MIT License
-Copyright (c) 2021 DocMinus
+Copyright (c) 2021-2022 DocMinus
 """
 
 import warnings
@@ -19,10 +19,10 @@ from rdfmodule import rdf_fixer
 
 def main():
     """Here the files are loaded & converted.
-    RDF file or path to files as as input.
-    The corrected file as ends up as fixed.RDF output.
-    As well as tabular CSV output file.
-    The original file remains untouched
+    Single RDF file or whole path to files as input.
+    The corrected file ends up as "_fixed.RDF" file,
+    as well as a tabular CSV output file.
+    The original file remains untouched.
 
     This demo script is after V2 even more light-weight.
     Usage:

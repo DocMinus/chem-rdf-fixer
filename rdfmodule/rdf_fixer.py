@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 """
 Chemical RDF converter & fixer.
-Version 2.6.1 (Feb 09, 14:15:00 2022)
+Version 2.6.2 (Feb 09, 14:15:00 2022)
 Update: Dec 08, 2022.
 Added support for Infochem based rdf files.
-Fixed some issues. Checking for existing fixed files is back.
+Removed unnecessary zip list return
 
 run by calling
-rdf_fixer.convert(filename or path)
-(optional: returns list of new filenames)
+rdf_fixer.fix(filename or path)
+(not via rdf_fixer.convert() even though that is possible)
 
 @author: Alexander Minidis (DocMinus)
 
@@ -20,7 +20,6 @@ Copyright (c) 2021-2022 DocMinus
 
 import os
 import re
-from black import dont_increase_indentation
 import pandas as pd
 from collections import OrderedDict
 import rdkit.Chem as rdc
@@ -31,7 +30,7 @@ from rdkit import RDLogger
 RDLogger.logger().setLevel(RDLogger.CRITICAL)
 
 
-def fix(RDF_IN: str) -> list:
+def fix(RDF_IN: str):
     """Retrieving all .RDF files in a subdirectory recursively.
     Then submit to conversion (i.e. fixing)
     Parts of os.walk snippet originated on Reddit somewhere, forgot where though.
@@ -94,7 +93,7 @@ def fix(RDF_IN: str) -> list:
             print("Converting file: ", file_in)
             convert(file_in, file_ok, file_csv)
 
-    return zip(file_list_in, file_list_ok, file_list_csv)
+    return
 
 
 def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
@@ -240,9 +239,8 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
     # Initialize Table and diverse variables
 
     # get string replacement variable depending on source
-    SCI_REAX = scifi_or_reax(
-        RDF_IN_FILE
-    )  # switching back to in_file instead of RDF_OK_FILE.
+    SCI_REAX = scifi_or_reax(RDF_IN_FILE)  
+    # switching back to in_file instead of RDF_OK_FILE.
     # build table according to files specs. get max no of reagents & products at the same time.
     my_table, max_reagents, max_products = build_empty_table(RDF_OK_FILE, SCI_REAX)
 

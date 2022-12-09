@@ -53,7 +53,7 @@ Follow instructions within.<br>
 **New V2.2:** small changes and slight version number format change.<br>
 **New V2.3:** added minimum mol sanitizations else errors in structures would make it crash.<br>
 **New V2.6:** addded support for ICSynth files.<br>
-**V2.6.1:** some bug fixes and (re)introduction of check for pre-existing fixed files.<br>
+**V2.6.2:** some bug fixes and (re)introduction of check for pre-existing fixed files. And fixed documentation in the module as well (it was pointing to convert instead of fix).<br>
 
 ### Testing
 The _testfiles_ folder contains three RDF files for a quick test with the Scifinder one containing an erroneous (i.e. missing) structre. 
