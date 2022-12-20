@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 """
 Chemical RDF converter & fixer.
-Version 2.6.2 (Feb 09, 14:15:00 2022)
-Update: Dec 08, 2022.
-Added support for Infochem based rdf files.
-Removed unnecessary zip list return
+Version 2.6.3 (Feb 09, 14:15:00 2022)
+Update: Dec 20, 2022.
+New flag: fix_also_convert -> allows to skip csv conversion.
+Will Add support for Infochem (old?) Spresi based rdf files.
 
 run by calling
 rdf_fixer.fix(filename or path)
@@ -30,13 +30,15 @@ from rdkit import RDLogger
 RDLogger.logger().setLevel(RDLogger.CRITICAL)
 
 
-def fix(RDF_IN: str):
+def fix(RDF_IN: str, fix_also_convert=True):
     """Retrieving all .RDF files in a subdirectory recursively.
     Then submit to conversion (i.e. fixing)
     Parts of os.walk snippet originated on Reddit somewhere, forgot where though.
     Rewritten to check for & stop fixing fixed files.
     Args:
-        RDF_IN = filename, alt. directory and subdirectories to scan
+        RDF_IN: filename, alt. directory and subdirectories to scan
+        fix_also_convert:   True (default) create converted csv as well, 
+                            False: only do the fixing.
     Returns:
         Originally None. Current the zipped list of paths. Usefull for Knime.
     """
@@ -91,24 +93,26 @@ def fix(RDF_IN: str):
         # note: zip gets unpacked upon usage and disappears!
         for file_in, file_ok, file_csv in zipped:
             print("Converting file: ", file_in)
-            convert(file_in, file_ok, file_csv)
-
+            convert(file_in, file_ok, file_csv, fix_also_convert)
+    #TODO really should have a return value, such as "x files converted?"
     return
 
 
-def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
+def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str, fix_also_convert=True):
     """original script with single file usage wrapped into this 'convert' function
     Args:
         RDF_IN_FILE: original input RDF file including path
         RDF_OK_FILE: new RDF file with corrections (if any)
         RDF_CSV_FILE: resulting CSV file (incl. path)
+        fix_also_convert:   True (default) create converted csv as well, 
+                            False: only do the fixing.
     Returns:
         None - output are the new files.
     """
 
     ##############################################################
     # Fix erroneous entries (empty mols) by deleting those entries
-
+    
     with open(RDF_IN_FILE) as file_in:
         seed_line = file_in.readline()
     previous_line = seed_line  # get first line as "seed" for upcoming loop
@@ -147,9 +151,9 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
         # the last line is not caught in the loop, hence written out here.
 
     # end of fix section
-    ####################
+    ##############################################################
 
-    def scifi_or_reax(in_file: str) -> str:
+    def rdf_source(in_file: str) -> str:
         """Determine if Scifinder, Reaxys or ICSynth rdf file
         (Scifinder contains 'SCHEME' in the enumeration;
         Infochem uses "Infochem" in RXN or MOL field)
@@ -178,11 +182,11 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
         f.close()
         return _scireaxinfochem
 
-    def build_empty_table(in_file: str, SCI_REAX: str):
+    def build_empty_table(in_file: str, RDF_TYPE: str):
         """Scans file (unfortunately) three times to build a pandas df used as main table
         Args:
             in_file (str): filename of the corrected file: RDF_OK_FILE
-            SCI_REAX (str): "RXN:" (scifinder/infochem) or string "ROOT:" (reaxys) used in replacements
+            RDF_TYPE (str): "RXN:" (scifinder/infochem) or string "ROOT:" (reaxys) used in replacements
         Returns:
             da_table (object): the (empty) pandas df working table
             max_reagents (int): number for later positioning of reagents smiles in table
@@ -226,7 +230,7 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
 
         for line in open(in_file):
             if line.startswith("$DTYPE"):
-                fields.append((line.strip().split(" ")[1]).replace(SCI_REAX, ""))
+                fields.append((line.strip().split(" ")[1]).replace(RDF_TYPE, ""))
 
         # finally, build the table
         da_table = pd.DataFrame(
@@ -235,425 +239,426 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str):
 
         return da_table, max_reagents, max_products
 
-    ##############################################################
-    # Initialize Table and diverse variables
+    if fix_also_convert:
+        ##############################################################
+        # Initialize Table and diverse variables
 
-    # get string replacement variable depending on source
-    SCI_REAX = scifi_or_reax(RDF_IN_FILE)  
-    # switching back to in_file instead of RDF_OK_FILE.
-    # build table according to files specs. get max no of reagents & products at the same time.
-    my_table, max_reagents, max_products = build_empty_table(RDF_OK_FILE, SCI_REAX)
+        # get string replacement variable depending on source
+        RDF_TYPE = rdf_source(RDF_IN_FILE)  
+        # switching back to in_file instead of RDF_OK_FILE.
+        # build table according to files specs. get max no of reagents & products at the same time.
+        my_table, max_reagents, max_products = build_empty_table(RDF_OK_FILE, RDF_TYPE)
 
-    ####################################################################
-    # Here comes the actual data extraction and addition to pandas table
+        ####################################################################
+        # Here comes the actual data extraction and addition to pandas table
 
-    #
-    ############### GET MOLECULES #############
-    # (structure same for Reaxys and Scifinder - and Infochem(?))
-    #
+        #
+        ############### GET MOLECULES #############
+        # (structure same for Reaxys and Scifinder - and Infochem(?))
+        #
 
-    flag = 0
-    # 0 = generic
-    # 1 = start of reaction block
-    # 2 = single MOL (molecules)
-    # 9 = skip
+        flag = 0
+        # 0 = generic
+        # 1 = start of reaction block
+        # 2 = single MOL (molecules)
+        # 9 = skip
 
-    molecule = []
-    number_reagents = 0
-    number_products = 0
-    number_molecules = 0
-    iterate_molecules = 0
-    mol_string = ""
-    rxn_id = ""
-    multiple_row_text = ""
+        molecule = []
+        number_reagents = 0
+        number_products = 0
+        number_molecules = 0
+        iterate_molecules = 0
+        mol_string = ""
+        rxn_id = ""
+        multiple_row_text = ""
 
-    # get first line as "seed" for upcoming loop
-    previous_line = seed_line
+        # get first line as "seed" for upcoming loop
+        previous_line = seed_line
 
-    for line in open(RDF_OK_FILE):
-        current_line = line
+        for line in open(RDF_OK_FILE):
+            current_line = line
 
-        # get reaction ID
-        if current_line.startswith("$RFMT"):
-            rxn_id = str(current_line.strip().split(" ")[2])
-            flag = 0
-            continue
-
-        # start of a new reaction block
-        if current_line.startswith("$RXN") | flag == 1:
-            flag = 1
-            if re.match("\s\s[0-9]\s\s[0-9]\n", current_line):
-                # analyse the "  y  z" line. Not hard-coding this since it might change?
-                # implies: y reactants, z product.
-                x = current_line.strip().split("  ")
-                number_reagents = int(x[0])
-                number_products = int(x[1])
-                number_molecules = number_reagents + number_products
-                # create fresh list of max no of molecules, for use in $MOL block
-                # yes, always same size within a *given file*, could change from file to file(!)
-                for i in range(number_molecules):
-                    molecule.append([])
-
-            if current_line == "\n" or re.match("\s\s[0-9]\s\s[0-9]\n", current_line):
-                # checks for empty lines and the number of molecules lines and skips them
+            # get reaction ID
+            if current_line.startswith("$RFMT"):
+                rxn_id = str(current_line.strip().split(" ")[2])
+                flag = 0
                 continue
 
-        # after determining a block, find the molecules within the block
-        if (current_line == "$MOL\n") | (flag == 2):
-            flag = 2
+            # start of a new reaction block
+            if current_line.startswith("$RXN") | flag == 1:
+                flag = 1
+                if re.match("\s\s[0-9]\s\s[0-9]\n", current_line):
+                    # analyse the "  y  z" line. Not hard-coding this since it might change?
+                    # implies: y reactants, z product.
+                    x = current_line.strip().split("  ")
+                    number_reagents = int(x[0])
+                    number_products = int(x[1])
+                    number_molecules = number_reagents + number_products
+                    # create fresh list of max no of molecules, for use in $MOL block
+                    # yes, always same size within a *given file*, could change from file to file(!)
+                    for i in range(number_molecules):
+                        molecule.append([])
 
-            if current_line != "$MOL\n" and (iterate_molecules < number_molecules):
-                molecule[iterate_molecules].append(current_line)
+                if current_line == "\n" or re.match("\s\s[0-9]\s\s[0-9]\n", current_line):
+                    # checks for empty lines and the number of molecules lines and skips them
+                    continue
 
-            if current_line == "M  END\n":
-                iterate_molecules += 1
+            # after determining a block, find the molecules within the block
+            if (current_line == "$MOL\n") | (flag == 2):
+                flag = 2
 
-            # end of the complete reaction block
-            if current_line.startswith("$D") & (previous_line == "M  END\n"):
-                flag = 9  # could just use flag = 0(?)
-                # rebuild the string of a molecule
-                counter_reagents = 0
-                counter_products = 0
-                num_mols_this_instance = len(molecule)
-                # should always be max_mol now, so doesn't matter
+                if current_line != "$MOL\n" and (iterate_molecules < number_molecules):
+                    molecule[iterate_molecules].append(current_line)
 
-                for mol in range(num_mols_this_instance):
-                    mol_string = "".join(molecule[mol])
-                    if mol_string == "":
-                        smiles = ""
-                    else:
-                        mol = rdc.MolFromMolBlock(mol_string, sanitize=False)
-                        if mol is None:
-                            continue
+                if current_line == "M  END\n":
+                    iterate_molecules += 1
 
-                        try:
-                            rdc.SanitizeMol(mol)
-                        except ValueError as _e:
-                            print("Error: ", _e)
-                            continue
+                # end of the complete reaction block
+                if current_line.startswith("$D") & (previous_line == "M  END\n"):
+                    flag = 9  # could just use flag = 0(?)
+                    # rebuild the string of a molecule
+                    counter_reagents = 0
+                    counter_products = 0
+                    num_mols_this_instance = len(molecule)
+                    # should always be max_mol now, so doesn't matter
 
-                        mol.UpdatePropertyCache(strict=False)
-                        rdc.SanitizeMol(
-                            mol,
-                            sanitizeOps=(
-                                rdc.SANITIZE_ALL
-                                ^ rdc.SANITIZE_CLEANUP
-                                ^ rdc.SANITIZE_PROPERTIES
-                            ),
+                    for mol in range(num_mols_this_instance):
+                        mol_string = "".join(molecule[mol])
+                        if mol_string == "":
+                            smiles = ""
+                        else:
+                            mol = rdc.MolFromMolBlock(mol_string, sanitize=False)
+                            if mol is None:
+                                continue
+
+                            try:
+                                rdc.SanitizeMol(mol)
+                            except ValueError as _e:
+                                print("Error: ", _e)
+                                continue
+
+                            mol.UpdatePropertyCache(strict=False)
+                            rdc.SanitizeMol(
+                                mol,
+                                sanitizeOps=(
+                                    rdc.SANITIZE_ALL
+                                    ^ rdc.SANITIZE_CLEANUP
+                                    ^ rdc.SANITIZE_PROPERTIES
+                                ),
+                            )
+                            mol = rdMolStandardize.Normalize(mol)
+                            smiles = rdc.MolToSmiles(mol)
+
+                        # some mols might be empty, this if/else positions reagents/products accordingly
+                        if counter_reagents + 1 <= number_reagents:
+                            my_table.loc[
+                                rxn_id, my_table.columns[counter_reagents]
+                            ] = smiles
+                            counter_reagents += 1
+                        else:
+                            my_table.loc[
+                                rxn_id, my_table.columns[counter_products + max_reagents]
+                            ] = smiles
+                            counter_products += 1
+
+                    # reset variables
+                    iterate_molecules = 0
+                    molecule = []
+                    mol_string = ""
+
+            previous_line = current_line
+        ################################
+
+        #
+        ######### GET single line data ##########
+        #
+
+        # Nota bene: this will write first line of multiline columns as well
+        # but doesn't matter since those will be correctly overwritten later on
+
+        rxn_id = ""
+        previous_line = seed_line
+
+        for line in open(RDF_OK_FILE):
+            current_line = line
+
+            # get reaction ID
+            if current_line.startswith("$RFMT"):
+                rxn_id = str(current_line.strip().split(" ")[2])
+                # flag = 0
+                continue
+
+            if previous_line.startswith("$DTYPE") and current_line.startswith("$DATUM"):
+                current_column = previous_line.strip().split(" ")[1].replace(RDF_TYPE, "")
+                row_text = current_line.replace("\n", " ")
+                # flag = 1
+                my_table.loc[rxn_id, current_column] = row_text.replace("$DATUM ", "")
+
+            previous_line = current_line
+        ################################
+
+        #
+        ### Extract Experimental Procedure ###
+        # Multiline, for all,
+        # Reaxys, Scifinder, Infochem
+        #
+
+        flag = 0
+        # 0 = generic
+        # 5 = exp procedure text over multiple lines
+        # 9 = skip
+        rxn_id = ""
+        multiple_row_text = ""
+        previous_line = seed_line
+
+        for line in open(RDF_OK_FILE):
+            current_line = line
+
+            # get reaction ID
+            if current_line.startswith("$RFMT"):
+                rxn_id = str(current_line.strip().split(" ")[2])
+                flag = 0
+                continue
+
+            # get experimental section
+            if RDF_TYPE.upper() == "RXN:":
+                if re.match(".+EXP_PROC", previous_line) or flag == 5:
+                    # start of the experimental section. spans over multiple line
+                    if re.match(".+EXP_PROC", previous_line):
+                        current_column = (
+                            previous_line.strip().split(" ")[1].replace(RDF_TYPE, "")
                         )
-                        mol = rdMolStandardize.Normalize(mol)
-                        smiles = rdc.MolToSmiles(mol)
 
-                    # some mols might be empty, this if/else positions reagents/products accordingly
-                    if counter_reagents + 1 <= number_reagents:
-                        my_table.loc[
-                            rxn_id, my_table.columns[counter_reagents]
-                        ] = smiles
-                        counter_reagents += 1
+                    if re.match(".+NOTES", current_line) or re.match(
+                        ".+REFERENCE.+", current_line
+                    ):
+                        # this is the end of experimental block
+                        flag = 9
+                        my_table.loc[rxn_id, current_column] = multiple_row_text.replace(
+                            "$DATUM ", ""
+                        )
+                        multiple_row_text = ""
                     else:
-                        my_table.loc[
-                            rxn_id, my_table.columns[counter_products + max_reagents]
-                        ] = smiles
-                        counter_products += 1
+                        multiple_row_text += current_line.replace("\n", " ")
+                        flag = 5
+            else:  # Reaxys
+                if re.match(".+TXT", previous_line) or flag == 5:
+                    # start of the experimental section. spans over multiple line
+                    if re.match(".+TXT", previous_line):
+                        current_column = (
+                            previous_line.strip().split(" ")[1].replace(RDF_TYPE, "")
+                        )
 
-                # reset variables
-                iterate_molecules = 0
-                molecule = []
-                mol_string = ""
+                    if re.match(".+STP", current_line):
+                        # this is the end of experimental block
+                        flag = 9
+                        my_table.loc[rxn_id, current_column] = multiple_row_text.replace(
+                            "$DATUM ", ""
+                        )
+                        multiple_row_text = ""
+                    else:
+                        multiple_row_text += current_line.replace("\n", " ")
+                        flag = 5
 
-        previous_line = current_line
-    ################################
+            previous_line = current_line
+        ################################
 
-    #
-    ######### GET single line data ##########
-    #
+        #
+        ######## Extract Notes ########
+        # (only Scifinder)
+        #
 
-    # Nota bene: this will write first line of multiline columns as well
-    # but doesn't matter since those will be correctly overwritten later on
+        flag = 0
+        # 0 = generic
+        # 6 = notes, text potentially over multiple lines
+        # 9 = skip
 
-    rxn_id = ""
-    previous_line = seed_line
+        rxn_id = ""
+        multiple_row_text = ""
+        previous_line = seed_line
 
-    for line in open(RDF_OK_FILE):
-        current_line = line
+        for line in open(RDF_OK_FILE):
+            current_line = line
 
-        # get reaction ID
-        if current_line.startswith("$RFMT"):
-            rxn_id = str(current_line.strip().split(" ")[2])
-            # flag = 0
-            continue
+            # get reaction ID
+            if current_line.startswith("$RFMT"):
+                rxn_id = str(current_line.strip().split(" ")[2])
+                flag = 0
+                continue
 
-        if previous_line.startswith("$DTYPE") and current_line.startswith("$DATUM"):
-            current_column = previous_line.strip().split(" ")[1].replace(SCI_REAX, "")
-            row_text = current_line.replace("\n", " ")
-            # flag = 1
-            my_table.loc[rxn_id, current_column] = row_text.replace("$DATUM ", "")
-
-        previous_line = current_line
-    ################################
-
-    #
-    ### Extract Experimental Procedure ###
-    # Multiline, for all,
-    # Reaxys, Scifinder, Infochem
-    #
-
-    flag = 0
-    # 0 = generic
-    # 5 = exp procedure text over multiple lines
-    # 9 = skip
-    rxn_id = ""
-    multiple_row_text = ""
-    previous_line = seed_line
-
-    for line in open(RDF_OK_FILE):
-        current_line = line
-
-        # get reaction ID
-        if current_line.startswith("$RFMT"):
-            rxn_id = str(current_line.strip().split(" ")[2])
-            flag = 0
-            continue
-
-        # get experimental section
-        if SCI_REAX.upper() == "RXN:":
-            if re.match(".+EXP_PROC", previous_line) or flag == 5:
-                # start of the experimental section. spans over multiple line
-                if re.match(".+EXP_PROC", previous_line):
-                    current_column = (
-                        previous_line.strip().split(" ")[1].replace(SCI_REAX, "")
-                    )
-
-                if re.match(".+NOTES", current_line) or re.match(
-                    ".+REFERENCE.+", current_line
-                ):
-                    # this is the end of experimental block
-                    flag = 9
-                    my_table.loc[rxn_id, current_column] = multiple_row_text.replace(
-                        "$DATUM ", ""
-                    )
-                    multiple_row_text = ""
-                else:
-                    multiple_row_text += current_line.replace("\n", " ")
-                    flag = 5
-        else:  # Reaxys
-            if re.match(".+TXT", previous_line) or flag == 5:
-                # start of the experimental section. spans over multiple line
-                if re.match(".+TXT", previous_line):
-                    current_column = (
-                        previous_line.strip().split(" ")[1].replace(SCI_REAX, "")
-                    )
-
-                if re.match(".+STP", current_line):
-                    # this is the end of experimental block
-                    flag = 9
-                    my_table.loc[rxn_id, current_column] = multiple_row_text.replace(
-                        "$DATUM ", ""
-                    )
-                    multiple_row_text = ""
-                else:
-                    multiple_row_text += current_line.replace("\n", " ")
-                    flag = 5
-
-        previous_line = current_line
-    ################################
-
-    #
-    ######## Extract Notes ########
-    # (only Scifinder)
-    #
-
-    flag = 0
-    # 0 = generic
-    # 6 = notes, text potentially over multiple lines
-    # 9 = skip
-
-    rxn_id = ""
-    multiple_row_text = ""
-    previous_line = seed_line
-
-    for line in open(RDF_OK_FILE):
-        current_line = line
-
-        # get reaction ID
-        if current_line.startswith("$RFMT"):
-            rxn_id = str(current_line.strip().split(" ")[2])
-            flag = 0
-            continue
-
-            # Get Notes
-        if re.match(".+NOTES", previous_line) or flag == 6:
-            flag = 6
-            # start of the Notes section. might span over multiple line
-            if re.match(".+NOTES", previous_line):
-                current_column = (
-                    previous_line.strip().split(" ")[1].replace(SCI_REAX, "")
-                )
-
-            if current_line.startswith("$DTYPE"):
-                # this is the end of Notes block
-                flag = 9
-                my_table.loc[rxn_id, current_column] = multiple_row_text.replace(
-                    "$DATUM ", ""
-                )
-                multiple_row_text = ""
-            else:
-                multiple_row_text += current_line.replace("\n", " ")
+                # Get Notes
+            if re.match(".+NOTES", previous_line) or flag == 6:
                 flag = 6
+                # start of the Notes section. might span over multiple line
+                if re.match(".+NOTES", previous_line):
+                    current_column = (
+                        previous_line.strip().split(" ")[1].replace(RDF_TYPE, "")
+                    )
 
-        previous_line = current_line
-    ################################
+                if current_line.startswith("$DTYPE"):
+                    # this is the end of Notes block
+                    flag = 9
+                    my_table.loc[rxn_id, current_column] = multiple_row_text.replace(
+                        "$DATUM ", ""
+                    )
+                    multiple_row_text = ""
+                else:
+                    multiple_row_text += current_line.replace("\n", " ")
+                    flag = 6
 
-    #
-    ######## Extract title ########
-    # (only Scifinder)
-    #
+            previous_line = current_line
+        ################################
 
-    flag = 0
-    # 0 = generic
-    # 7 = title
-    # 9 = skip
+        #
+        ######## Extract title ########
+        # (only Scifinder)
+        #
 
-    rxn_id = ""
-    multiple_row_text = ""
-    previous_line = seed_line
+        flag = 0
+        # 0 = generic
+        # 7 = title
+        # 9 = skip
 
-    for line in open(RDF_OK_FILE):
-        current_line = line
+        rxn_id = ""
+        multiple_row_text = ""
+        previous_line = seed_line
 
-        # get reaction ID
-        if current_line.startswith("$RFMT"):
-            rxn_id = str(current_line.strip().split(" ")[2])
-            flag = 0
-            continue
+        for line in open(RDF_OK_FILE):
+            current_line = line
 
-            # Get Title
-        if re.match(".+TITLE", previous_line) or flag == 7:
-            flag = 7
-            # start of the Title section. might span over multiple line
-            if re.match(".+TITLE", previous_line):
-                current_column = (
-                    previous_line.strip().split(" ")[1].replace(SCI_REAX, "")
-                )
+            # get reaction ID
+            if current_line.startswith("$RFMT"):
+                rxn_id = str(current_line.strip().split(" ")[2])
+                flag = 0
+                continue
 
-            if current_line.startswith("$DTYPE"):
-                # this is the end of title block
-                flag = 9
-                my_table.loc[rxn_id, current_column] = multiple_row_text.replace(
-                    "$DATUM ", ""
-                )
-                multiple_row_text = ""
-            else:
-                multiple_row_text += current_line.replace("\n", " ")
+                # Get Title
+            if re.match(".+TITLE", previous_line) or flag == 7:
                 flag = 7
+                # start of the Title section. might span over multiple line
+                if re.match(".+TITLE", previous_line):
+                    current_column = (
+                        previous_line.strip().split(" ")[1].replace(RDF_TYPE, "")
+                    )
 
-        previous_line = current_line
-    ################################
+                if current_line.startswith("$DTYPE"):
+                    # this is the end of title block
+                    flag = 9
+                    my_table.loc[rxn_id, current_column] = multiple_row_text.replace(
+                        "$DATUM ", ""
+                    )
+                    multiple_row_text = ""
+                else:
+                    multiple_row_text += current_line.replace("\n", " ")
+                    flag = 7
 
-    #
-    ####### Extract authors ########
-    # (only Scifinder)
-    #
+            previous_line = current_line
+        ################################
 
-    flag = 0
-    # 0 = generic
-    # 8 = authors
-    # 9 = skip
+        #
+        ####### Extract authors ########
+        # (only Scifinder)
+        #
 
-    rxn_id = ""
-    multiple_row_text = ""
-    previous_line = seed_line
+        flag = 0
+        # 0 = generic
+        # 8 = authors
+        # 9 = skip
 
-    for line in open(RDF_OK_FILE):
-        current_line = line
+        rxn_id = ""
+        multiple_row_text = ""
+        previous_line = seed_line
 
-        # get reaction ID
-        if current_line.startswith("$RFMT"):
-            rxn_id = str(current_line.strip().split(" ")[2])
-            flag = 0
-            continue
+        for line in open(RDF_OK_FILE):
+            current_line = line
 
-            # Get Authors
-        if re.match(".+AUTHOR", previous_line) or flag == 8:
-            flag = 8
-            if re.match(".+AUTHOR", previous_line):
-                current_column = (
-                    previous_line.strip().split(" ")[1].replace(SCI_REAX, "")
-                )
+            # get reaction ID
+            if current_line.startswith("$RFMT"):
+                rxn_id = str(current_line.strip().split(" ")[2])
+                flag = 0
+                continue
 
-            if current_line.startswith("$DTYPE"):
-                # this is the end of author block
-                flag = 9
-                my_table.loc[rxn_id, current_column] = multiple_row_text.replace(
-                    "$DATUM ", ""
-                )
-                multiple_row_text = ""
-            else:
-                multiple_row_text += current_line.replace("\n", " ")
+                # Get Authors
+            if re.match(".+AUTHOR", previous_line) or flag == 8:
                 flag = 8
+                if re.match(".+AUTHOR", previous_line):
+                    current_column = (
+                        previous_line.strip().split(" ")[1].replace(RDF_TYPE, "")
+                    )
 
-        previous_line = current_line
-    ################################
+                if current_line.startswith("$DTYPE"):
+                    # this is the end of author block
+                    flag = 9
+                    my_table.loc[rxn_id, current_column] = multiple_row_text.replace(
+                        "$DATUM ", ""
+                    )
+                    multiple_row_text = ""
+                else:
+                    multiple_row_text += current_line.replace("\n", " ")
+                    flag = 8
 
-    #
-    ### Extract citation (i.e. source) ###
-    #
-    # This is done last, since for Scifinder
-    # this is the last entry in a file
-    # not necessary for reaxys, but it will go through it anyway
-    # (less ifs and doesn't screw anything up)
-    #
+            previous_line = current_line
+        ################################
 
-    flag = 0
-    # 0 = generic
-    # 9 = skip
-    # 4 = citation
+        #
+        ### Extract citation (i.e. source) ###
+        #
+        # This is done last, since for Scifinder
+        # this is the last entry in a file
+        # not necessary for reaxys, but it will go through it anyway
+        # (less ifs and doesn't screw anything up)
+        #
 
-    rxn_id = ""
-    multiple_row_text = ""
-    previous_line = seed_line
+        flag = 0
+        # 0 = generic
+        # 9 = skip
+        # 4 = citation
 
-    for line in open(RDF_OK_FILE):
-        current_line = line
+        rxn_id = ""
+        multiple_row_text = ""
+        previous_line = seed_line
 
-        # get reaction ID
-        if current_line.startswith("$RFMT"):
-            rxn_id = str(current_line.strip().split(" ")[2])
-            flag = 0
-            continue
+        for line in open(RDF_OK_FILE):
+            current_line = line
 
-            # Get Citation
-        if re.match(".+CITATION", previous_line) or flag == 4:
-            flag = 4
-            if re.match(".+CITATION", previous_line):
-                current_column = (
-                    previous_line.strip().split(" ")[1].replace(SCI_REAX, "")
-                )
+            # get reaction ID
+            if current_line.startswith("$RFMT"):
+                rxn_id = str(current_line.strip().split(" ")[2])
+                flag = 0
+                continue
 
-            if current_line.startswith("$DTYPE"):
-                # this is the end of citation block
-                flag = 9
-                my_table.loc[rxn_id, current_column] = multiple_row_text.replace(
-                    "$DATUM ", ""
-                )
-                multiple_row_text = ""
-            else:
-                multiple_row_text += current_line.replace("\n", " ")
+                # Get Citation
+            if re.match(".+CITATION", previous_line) or flag == 4:
                 flag = 4
+                if re.match(".+CITATION", previous_line):
+                    current_column = (
+                        previous_line.strip().split(" ")[1].replace(RDF_TYPE, "")
+                    )
 
-        previous_line = current_line
-    ################################
+                if current_line.startswith("$DTYPE"):
+                    # this is the end of citation block
+                    flag = 9
+                    my_table.loc[rxn_id, current_column] = multiple_row_text.replace(
+                        "$DATUM ", ""
+                    )
+                    multiple_row_text = ""
+                else:
+                    multiple_row_text += current_line.replace("\n", " ")
+                    flag = 4
 
-    # End of file scanning #
+            previous_line = current_line
+        ################################
 
-    ############################################
-    # Finish table for export to csv file format
+        # End of file scanning #
 
-    my_table = my_table.replace(pd.np.nan, "", regex=True)  # need to remove NaN
-    my_table.drop(
-        list(my_table.filter(regex="COPYRIGHT")), axis=1, inplace=True
-    )  # skip the copyright (optional)
-    my_table.to_csv(RDF_CSV_FILE, sep="\t", header=True, index=True)
+        ############################################
+        # Finish table for export to csv file format
+
+        my_table = my_table.replace(pd.np.nan, "", regex=True)  # need to remove NaN
+        my_table.drop(
+            list(my_table.filter(regex="COPYRIGHT")), axis=1, inplace=True
+        )  # skip the copyright (optional)
+        my_table.to_csv(RDF_CSV_FILE, sep="\t", header=True, index=True)
 
     # end of script
     # one could add a return value for better error handling.
