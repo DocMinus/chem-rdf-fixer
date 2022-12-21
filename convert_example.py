@@ -2,7 +2,8 @@
 """
 Created on Tues Feb 23 21:00:00 2021
 RDF converter & fixer
-Version 2.2.1 (Dec 08 12:56:00 2022)
+Version 2.2.2 (Dec 08 12:56:00 2022)
+Updated Dec 221, 2022
 
 @author: Alexander Minidis (DocMinus)
 
@@ -39,12 +40,8 @@ def main():
     '''# argparse would be an alternative. check the jupyter book for an example
 
     print("Initiating conversion...")
-    new_files = rdf_fixer.fix("/home/alex/dev/data/new_rdfs/marvin.rdf", True) #sys.argv[1])
+    rdf_fixer.fix("/home/alex/dev/data/new_rdfs/marvin.rdf", True) #sys.argv[1])
     print("And done.")
-
-    #print("Optional output: A comprehensive list for continued analysis")
-    #for file_in, file_ok, file_csv in new_files:
-    #    print(file_in, "\n\t-> ", file_ok, "\n\t-> ", file_csv)
 
     return None
 

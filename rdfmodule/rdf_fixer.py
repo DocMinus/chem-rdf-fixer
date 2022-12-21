@@ -112,7 +112,7 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str, fix_also_conv
     ##############################################################
     # Fix erroneous entries (empty mols) by deleting those entries
     print("File: ", RDF_IN_FILE)
-    print("Fixing.")  # In two lines, so that convert to csv don't need RDF_IN_FILE as well
+    print("Fixing.")  # doing it in two lines, so that convert to csv don't need RDF_IN_FILE as well
     with open(RDF_IN_FILE) as file_in:
         seed_line = file_in.readline()
     previous_line = seed_line  # get first line as "seed" for upcoming loop
@@ -161,7 +161,7 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str, fix_also_conv
     ##############################################################
 
     def rdf_source(in_file: str) -> str:
-        """Determine if Scifinder, Reaxys or ICSynth rdf file
+        """Determine if Scifinder, Reaxys or Infochem rdf file
         (Scifinder contains 'SCHEME' in the enumeration;
         ICSynth uses "Infochem" in RXN or MOL field; Spresi yet again different)
         Returned string is used by multiple string.replace() methods,
@@ -188,41 +188,10 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str, fix_also_conv
             # CAS: Scifinder
             pass
         if (not re.match(".+SCHEME", line[2])) and re.match(".+Marvin", line[5]):
-            # Reaxys - also Chemaxon Marvin?
+            # Reaxys
             _rdf = "ROOT:"
-            #TODO: check this, not working as intended
-
 
         return _rdf
-
-
-    def rdf_source_bkp(in_file: str) -> str:
-        """Determine if Scifinder, Reaxys or ICSynth rdf file
-        (Scifinder contains 'SCHEME' in the enumeration;
-        ICSynth uses "Infochem" in RXN or MOL field; Spresi yet again different)
-        Returned string is used by multiple string.replace() methods,
-        to render script independent of source
-
-        Args:
-            in_file (str): filename of the corrected file (in principle,
-                           the original one would work as well;
-                           alt even global variable possible instead)
-        Returns:
-            _scireaxinfochem (str): "RXN:" (scifinder & Infochem) or "ROOT:" (reaxys)
-        """
-        f = open(in_file)
-        NUMBER_OF_LINES = 3
-
-        for i in range(NUMBER_OF_LINES):
-            line_three = f.readline()
-        _scireax = "RXN:" if re.match(".+SCHEME", line_three) else "ROOT:"
-        # since this is ambigeous between ICSynth/Spresi and Reaxys, another check 3 lines after:
-        for i in range(NUMBER_OF_LINES):
-            line_six = f.readline()
-        _scireaxinfochem = "RXN:" if re.match(".+INFOCHEM", line_six) else _scireax 
-
-        f.close()
-        return _scireaxinfochem
 
 
     def build_empty_table(in_file: str, RDF_TYPE: str):
