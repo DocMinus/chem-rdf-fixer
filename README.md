@@ -38,16 +38,15 @@ e.g.:
 ### Usage:
 `rdf_fixer.fix("input RDF filename or path containing rdf files")`<br>
 or<br>
-`new_files_as_zip = rdf_fixer.fix(....)`<br>
+`rdf_fixer.fix("file(s)", flag=True(default)/False)`<br>
+use the flag option if you only want to fix file(s) but not create csv files.
 
 ### Implement e.g. via the enclosed example script or Jupyter Notebook:<br>
 `convert_example.py "./filename.rdf"` for single file usage (with or without quotes)<br>
 `convert_example.py /directory/` for RDF files in directory including all subdirectories <br>
 <br>
 **New V1.05:** added a Jupyter notebook:<br>
-in your shell or cmd line type:
-`jupyter notebook convert_example.ipynb`<br>
-Follow instructions within.<br>
+in your shell or cmd line type: `jupyter notebook convert_example.ipynb`<br>
 **New V2.00:** rewritten and simplified the module. Added setup to do pip install from git repo.<br>
 **New V2.01:** function returns a zipped list containing all file names.<br>
 **New V2.2:** small changes and slight version number format change.<br>
@@ -66,6 +65,6 @@ Converting the current function(s) into a class has also been abandoned, there i
 
 ### License
 Independent of the code or whatever license, the test files provided are not to be included for further distribution other than ones initial testing.<br>
-The copyright for the data for these two files lies with the providers (ACS, resp. Elsevier Life Sciences IP Limited) and not with the author or anyone reusing/changing this code.<br>
+The copyright for the data for these files lies with the providers (Deepmatter/Infochem, ACS, Elsevier Life Sciences IP Limited) and not with the author or anyone reusing/changing this code.<br>
 For the code section: Copyright (c) 2021-2022 DocMinus, MIT License (see also LICENSE file).
 
