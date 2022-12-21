@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 """
 Chemical RDF converter & fixer.
-Version 2.6.3 (Feb 09, 14:15:00 2022)
-Update: Dec 20, 2022.
+Version 2.7.0 (Feb 09, 14:15:00 2022)
+Update: Dec 21, 2022.
 New flag: fix_also_convert -> allows to skip csv conversion.
-Will Add support for Infochem (old?) Spresi based rdf files.
+Support for Infochem (old?) Spresi based rdf files.
+Some rewriting of code for clarity
 
 run by calling
 rdf_fixer.fix(filename or path)
@@ -92,10 +93,8 @@ def fix(RDF_IN: str, fix_also_convert=True):
         zipped = zip(file_list_in, file_list_ok, file_list_csv)
         # note: zip gets unpacked upon usage and disappears!
         for file_in, file_ok, file_csv in zipped:
-            print("Converting file: ", file_in)
             convert(file_in, file_ok, file_csv, fix_also_convert)
-    #TODO really should have a return value, such as "x files converted?"
-    return
+    return 
 
 
 def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str, fix_also_convert=True):
@@ -112,13 +111,15 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str, fix_also_conv
 
     ##############################################################
     # Fix erroneous entries (empty mols) by deleting those entries
-    
+    print("File: ", RDF_IN_FILE)
+    print("Fixing.")  # In two lines, so that convert to csv don't need RDF_IN_FILE as well
     with open(RDF_IN_FILE) as file_in:
         seed_line = file_in.readline()
     previous_line = seed_line  # get first line as "seed" for upcoming loop
     # seed_line is later reused again
     with open(RDF_OK_FILE, "w") as file_out:
-        write_to_file = True
+        write_to_file = True   # not super clean to mix Bool with , later on, string
+        counter = 0  # in case one needs to change entry enumeration
         for current_line in open(RDF_IN_FILE):
             # prevent first line from being written twice
             if current_line.startswith("$RDFILE") and previous_line.startswith(
@@ -135,12 +136,18 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str, fix_also_conv
             write_to_file = not (
                 current_line.startswith("$DTYPE") and previous_line.startswith("$RFMT")
             )
-            # here a correction for Infochem RDFS that has one empty row to many
+
+            # here a correction for ICSynth RDFs that have one empty row to many
             if current_line == "\n" and previous_line.startswith("M  END"):
                 continue
 
-            # old entries use lower case rxn. Change to upper case. fast without if check.
+            # old entries use lower case rxn. Change to upper case. faster without if check.
             previous_line = previous_line.replace("rxn:", "RXN:")
+            
+            # here a correction for (old) Spresi Rdfs (also Marvin???)
+            # else a csv conversion won't work without extensive changes
+            previous_line = previous_line.replace("$RFMT\n", ("$RFMT $RIREG " + str(counter) + "\n"))
+            counter +=1
 
             if write_to_file:
                 file_out.write(previous_line)
@@ -156,7 +163,7 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str, fix_also_conv
     def rdf_source(in_file: str) -> str:
         """Determine if Scifinder, Reaxys or ICSynth rdf file
         (Scifinder contains 'SCHEME' in the enumeration;
-        Infochem uses "Infochem" in RXN or MOL field)
+        ICSynth uses "Infochem" in RXN or MOL field; Spresi yet again different)
         Returned string is used by multiple string.replace() methods,
         to render script independent of source
 
@@ -165,22 +172,58 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str, fix_also_conv
                            the original one would work as well;
                            alt even global variable possible instead)
         Returns:
-            SCI_REAX (str): "RXN:" (scifinder & Infochem) or "ROOT:" (reaxys)
+            _rdf (str): "RXN:" (scifinder & Infochem) or "ROOT:" (reaxys)
         """
+        f = open(in_file)
+        NUMBER_OF_LINES = 12
+        line:str = []
+        for i in range(NUMBER_OF_LINES):
+            line.append(f.readline())
+        f.close()
+        _rdf = "RXN:"
+        if re.match(".+SCHEME", line[2]) and re.match(".+Infochem", line[10]):
+            #Infochem ICSynth and (corrected) SPRESI
+            pass
+        if re.match(".+SCHEME", line[2]) and re.match(".+ACS", line[11]):
+            # CAS: Scifinder
+            pass
+        if (not re.match(".+SCHEME", line[2])) and re.match(".+Marvin", line[5]):
+            # Reaxys - also Chemaxon Marvin?
+            _rdf = "ROOT:"
+            #TODO: check this, not working as intended
 
+
+        return _rdf
+
+
+    def rdf_source_bkp(in_file: str) -> str:
+        """Determine if Scifinder, Reaxys or ICSynth rdf file
+        (Scifinder contains 'SCHEME' in the enumeration;
+        ICSynth uses "Infochem" in RXN or MOL field; Spresi yet again different)
+        Returned string is used by multiple string.replace() methods,
+        to render script independent of source
+
+        Args:
+            in_file (str): filename of the corrected file (in principle,
+                           the original one would work as well;
+                           alt even global variable possible instead)
+        Returns:
+            _scireaxinfochem (str): "RXN:" (scifinder & Infochem) or "ROOT:" (reaxys)
+        """
         f = open(in_file)
         NUMBER_OF_LINES = 3
 
         for i in range(NUMBER_OF_LINES):
             line_three = f.readline()
         _scireax = "RXN:" if re.match(".+SCHEME", line_three) else "ROOT:"
-        # since this is ambigeous between Infochem and Reaxys, another check 3 lines after:
+        # since this is ambigeous between ICSynth/Spresi and Reaxys, another check 3 lines after:
         for i in range(NUMBER_OF_LINES):
             line_six = f.readline()
-        _scireaxinfochem = "RXN:" if re.match(".+INFOCHEM", line_six) else _scireax
+        _scireaxinfochem = "RXN:" if re.match(".+INFOCHEM", line_six) else _scireax 
 
         f.close()
         return _scireaxinfochem
+
 
     def build_empty_table(in_file: str, RDF_TYPE: str):
         """Scans file (unfortunately) three times to build a pandas df used as main table
@@ -240,6 +283,7 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str, fix_also_conv
         return da_table, max_reagents, max_products
 
     if fix_also_convert:
+        print("Converting to csv.")
         ##############################################################
         # Initialize Table and diverse variables
 

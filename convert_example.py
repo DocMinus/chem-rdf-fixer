@@ -31,20 +31,20 @@ def main():
     convert_example.py /home/user/subdir/
     """
 
-    try:
+    '''try:
         sys.argv[1]
     except IndexError:
         print("You need to specify an input file or directory!")
         sys.exit(1)
-    # argparse would be an alternative. check the jupyter book for an example
+    '''# argparse would be an alternative. check the jupyter book for an example
 
     print("Initiating conversion...")
-    new_files = rdf_fixer.fix(sys.argv[1])
+    new_files = rdf_fixer.fix("/home/alex/dev/data/new_rdfs/marvin.rdf", True) #sys.argv[1])
     print("And done.")
 
-    print("Optional output: A comprehensive list for continued analysis")
-    for file_in, file_ok, file_csv in new_files:
-        print(file_in, "\n\t-> ", file_ok, "\n\t-> ", file_csv)
+    #print("Optional output: A comprehensive list for continued analysis")
+    #for file_in, file_ok, file_csv in new_files:
+    #    print(file_in, "\n\t-> ", file_ok, "\n\t-> ", file_csv)
 
     return None
 
