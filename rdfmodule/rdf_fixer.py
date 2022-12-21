@@ -9,8 +9,8 @@ Support for Infochem (old?) Spresi based rdf files.
 Some rewriting of code for clarity
 
 run by calling
-rdf_fixer.fix(filename or path)
-(not via rdf_fixer.convert() even though that is possible)
+rdf_fixer.fix(filename or path, optionalflag)
+optionalflag default = True; False: only fix, not convert.
 
 @author: Alexander Minidis (DocMinus)
 
@@ -33,15 +33,16 @@ RDLogger.logger().setLevel(RDLogger.CRITICAL)
 
 def fix(RDF_IN: str, fix_also_convert=True):
     """Retrieving all .RDF files in a subdirectory recursively.
+    (or only a single rdf file)
     Then submit to conversion (i.e. fixing)
     Parts of os.walk snippet originated on Reddit somewhere, forgot where though.
     Rewritten to check for & stop fixing fixed files.
     Args:
         RDF_IN: filename, alt. directory and subdirectories to scan
-        fix_also_convert:   True (default) create converted csv as well, 
+        fix_also_convert:   True (default) create converted csv as well,
                             False: only do the fixing.
     Returns:
-        Originally None. Current the zipped list of paths. Usefull for Knime.
+        None.
     """
 
     file_list_in = []
@@ -94,16 +95,18 @@ def fix(RDF_IN: str, fix_also_convert=True):
         # note: zip gets unpacked upon usage and disappears!
         for file_in, file_ok, file_csv in zipped:
             convert(file_in, file_ok, file_csv, fix_also_convert)
-    return 
+    return
 
 
-def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str, fix_also_convert=True):
+def convert(
+    RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str, fix_also_convert=True
+):
     """original script with single file usage wrapped into this 'convert' function
     Args:
         RDF_IN_FILE: original input RDF file including path
         RDF_OK_FILE: new RDF file with corrections (if any)
         RDF_CSV_FILE: resulting CSV file (incl. path)
-        fix_also_convert:   True (default) create converted csv as well, 
+        fix_also_convert:   True (default) create converted csv as well,
                             False: only do the fixing.
     Returns:
         None - output are the new files.
@@ -112,13 +115,15 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str, fix_also_conv
     ##############################################################
     # Fix erroneous entries (empty mols) by deleting those entries
     print("File: ", RDF_IN_FILE)
-    print("Fixing.")  # doing it in two lines, so that convert to csv don't need RDF_IN_FILE as well
+    print(
+        "Fixing."
+    )  # doing it in two lines, so that convert to csv don't need RDF_IN_FILE as well
     with open(RDF_IN_FILE) as file_in:
         seed_line = file_in.readline()
     previous_line = seed_line  # get first line as "seed" for upcoming loop
     # seed_line is later reused again
     with open(RDF_OK_FILE, "w") as file_out:
-        write_to_file = True   # not super clean to mix Bool with , later on, string
+        write_to_file = True  # not super clean to mix Bool with , later on, string
         counter = 0  # in case one needs to change entry enumeration
         for current_line in open(RDF_IN_FILE):
             # prevent first line from being written twice
@@ -143,11 +148,13 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str, fix_also_conv
 
             # old entries use lower case rxn. Change to upper case. faster without if check.
             previous_line = previous_line.replace("rxn:", "RXN:")
-            
+
             # here a correction for (old) Spresi Rdfs (also Marvin???)
             # else a csv conversion won't work without extensive changes
-            previous_line = previous_line.replace("$RFMT\n", ("$RFMT $RIREG " + str(counter) + "\n"))
-            counter +=1
+            previous_line = previous_line.replace(
+                "$RFMT\n", ("$RFMT $RIREG " + str(counter) + "\n")
+            )
+            counter += 1
 
             if write_to_file:
                 file_out.write(previous_line)
@@ -176,13 +183,13 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str, fix_also_conv
         """
         f = open(in_file)
         NUMBER_OF_LINES = 12
-        line:str = []
+        line: str = []
         for i in range(NUMBER_OF_LINES):
             line.append(f.readline())
         f.close()
         _rdf = "RXN:"
         if re.match(".+SCHEME", line[2]) and re.match(".+Infochem", line[10]):
-            #Infochem ICSynth and (corrected) SPRESI
+            # Infochem ICSynth and (corrected) SPRESI
             pass
         if re.match(".+SCHEME", line[2]) and re.match(".+ACS", line[11]):
             # CAS: Scifinder
@@ -192,7 +199,6 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str, fix_also_conv
             _rdf = "ROOT:"
 
         return _rdf
-
 
     def build_empty_table(in_file: str, RDF_TYPE: str):
         """Scans file (unfortunately) three times to build a pandas df used as main table
@@ -257,7 +263,7 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str, fix_also_conv
         # Initialize Table and diverse variables
 
         # get string replacement variable depending on source
-        RDF_TYPE = rdf_source(RDF_IN_FILE)  
+        RDF_TYPE = rdf_source(RDF_IN_FILE)
         # switching back to in_file instead of RDF_OK_FILE.
         # build table according to files specs. get max no of reagents & products at the same time.
         my_table, max_reagents, max_products = build_empty_table(RDF_OK_FILE, RDF_TYPE)
@@ -312,7 +318,9 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str, fix_also_conv
                     for i in range(number_molecules):
                         molecule.append([])
 
-                if current_line == "\n" or re.match("\s\s[0-9]\s\s[0-9]\n", current_line):
+                if current_line == "\n" or re.match(
+                    "\s\s[0-9]\s\s[0-9]\n", current_line
+                ):
                     # checks for empty lines and the number of molecules lines and skips them
                     continue
 
@@ -370,7 +378,8 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str, fix_also_conv
                             counter_reagents += 1
                         else:
                             my_table.loc[
-                                rxn_id, my_table.columns[counter_products + max_reagents]
+                                rxn_id,
+                                my_table.columns[counter_products + max_reagents],
                             ] = smiles
                             counter_products += 1
 
@@ -402,7 +411,9 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str, fix_also_conv
                 continue
 
             if previous_line.startswith("$DTYPE") and current_line.startswith("$DATUM"):
-                current_column = previous_line.strip().split(" ")[1].replace(RDF_TYPE, "")
+                current_column = (
+                    previous_line.strip().split(" ")[1].replace(RDF_TYPE, "")
+                )
                 row_text = current_line.replace("\n", " ")
                 # flag = 1
                 my_table.loc[rxn_id, current_column] = row_text.replace("$DATUM ", "")
@@ -447,9 +458,9 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str, fix_also_conv
                     ):
                         # this is the end of experimental block
                         flag = 9
-                        my_table.loc[rxn_id, current_column] = multiple_row_text.replace(
-                            "$DATUM ", ""
-                        )
+                        my_table.loc[
+                            rxn_id, current_column
+                        ] = multiple_row_text.replace("$DATUM ", "")
                         multiple_row_text = ""
                     else:
                         multiple_row_text += current_line.replace("\n", " ")
@@ -465,9 +476,9 @@ def convert(RDF_IN_FILE: str, RDF_OK_FILE: str, RDF_CSV_FILE: str, fix_also_conv
                     if re.match(".+STP", current_line):
                         # this is the end of experimental block
                         flag = 9
-                        my_table.loc[rxn_id, current_column] = multiple_row_text.replace(
-                            "$DATUM ", ""
-                        )
+                        my_table.loc[
+                            rxn_id, current_column
+                        ] = multiple_row_text.replace("$DATUM ", "")
                         multiple_row_text = ""
                     else:
                         multiple_row_text += current_line.replace("\n", " ")
