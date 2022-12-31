@@ -8,4 +8,6 @@
 **/src
 *.csv
 *_fixed.rdf
-tmpy.py
+tmp*.py
+
+*2.py

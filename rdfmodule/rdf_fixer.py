@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 """
 Chemical RDF converter & fixer.
-Version 3.0.0 (Feb 09, 14:15:00 2022)
-Update: Dec 30, 2022.
-Even more rewriting
+Version 3.0.1 (Feb 09, 14:15:00 2022)
+Update: Dec 31, 2022.
+Even more rewriting. still horrible, but works.
 
 run by calling
 rdf_fixer.fix(filename or path. flag)
@@ -28,10 +28,25 @@ from rdkit import RDLogger
 # Important, or else waaaay too many RDkit details in output
 RDLogger.logger().setLevel(RDLogger.CRITICAL)
 
+class Files:
+    """
+    Collects the filenames into a class, thus less variables needed for function declarations
+    """
+
+    def __init__ (self, provided_rdf_source, provided_rdf_fixed, provided_csv_file):
+        self.rdf_source = provided_rdf_source
+        self.rdf_fixed = provided_rdf_fixed
+        self.csv_file = provided_csv_file
+
+    def rdf_to_rdffix_zipped(self):
+        return zip(self.rdf_source, self.rdf_fixed)
+        # sort of kind of optional. leaving it as a learning thingy.
+    
+
 
 def files_to_read(rdf_source: str):
-    """Retrieving all .RDF files in a subdirectory recursively.
-    (or only a single rdf file)
+    """Retrieving all .RDF files in a subdirectory recursively, or only a single rdf file.
+    Called by the fix function.
     Parts of os.walk snippet originated on Reddit somewhere, forgot where though.
     Args:
         rdf_source: filename, alt. directory and subdirectories to scan
@@ -84,27 +99,35 @@ def files_to_read(rdf_source: str):
                         )
             for x in _item_to_remove:
                 file_list_in.remove(x)
+    
+    myfiles = Files(file_list_in, file_list_ok, file_list_csv)
 
     if len(file_list_in) > 0:
         rdfnames_fix_zipped = zip(file_list_in, file_list_ok)
         rdfnames_convert_zipped = zip(file_list_ok, file_list_csv)
         # note: zip gets unpacked upon usage and disappears!
 
-    return rdfnames_fix_zipped, rdfnames_convert_zipped
+    return myfiles
+    #return rdfnames_fix_zipped, rdfnames_convert_zipped
 
 
 def fix(rdf_source: str, convert_to_csv=True):
-    # Fix erroneous entries (empty mols) by deleting those entries
-    rdfnames_fix_zipped, rdfnames_convert_zipped = files_to_read(rdf_source)
-    for rdf_file_in, rdf_file_ok in rdfnames_fix_zipped:
-
+    """Fix erroneous entries (empty mols) by deleting those entries
+    Args:
+        rdf_source: filename, alt. directory and subdirectories to scan
+        convert_to_csv: default is True, then it will also convert to csv.
+    Returns:
+        None. Indirectly, converted files are the result.
+    """
+    myfiles = files_to_read(rdf_source)
+    print(myfiles)
+    for rdf_file_in, rdf_file_ok in myfiles.rdf_to_rdffix_zipped():
         print("Fixing File: ", rdf_file_in)
         with open(rdf_file_in) as file_in:
             seed_line = file_in.readline()
         previous_line = seed_line  # get first line as "seed" for upcoming loop
-        # seed_line is later reused again
         with open(rdf_file_ok, "w") as file_out:
-            write_to_file = True  # not super clean to mix Bool with , later on, string
+            write_to_file:str = "dummy"  # was bool before, now a tidbit cleaner
             counter = 0  # in case one needs to change entry enumeration
             for current_line in open(rdf_file_in):
                 # prevent first line from being written twice
@@ -147,24 +170,24 @@ def fix(rdf_source: str, convert_to_csv=True):
             # the last line is not caught in the loop, hence written out here.
 
     if convert_to_csv:
-        convert(rdfnames_convert_zipped)
-    # TODO error catching?
+        convert(myfiles)
+
     return None
 
 
-def convert(rdfnames_convert_zipped: zip):
+def convert(myfiles: Files):
     """
     called by fix function, calls the create csv in a loop.
     no return.
     """
-    for rdf_file_ok, rdf_file_csv in rdfnames_convert_zipped:
-        create_csv(rdf_file_ok, rdf_file_csv)
+    for rdf_file_ok, rdf_file_csv in zip(myfiles.rdf_fixed, myfiles.csv_file):
+        csv_from_rdf(rdf_file_ok, rdf_file_csv)
 
     return None
 
 
-def create_csv(rdf_file_ok: str, rdf_file_csv: str):
-    """original script with single file usage wrapped into this 'convert' function
+def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str):
+    """CSV from RDF convert function
     Args:
         rdf_file_ok: new RDF file with corrections (if any)
         rdf_file_csv: resulting CSV file (incl. path)
@@ -266,11 +289,8 @@ def create_csv(rdf_file_ok: str, rdf_file_csv: str):
     print("Converting to csv.")
     ##############################################################
     # Initialize Table and diverse variables
-    with open(rdf_file_ok) as file_in:
-        seed_line = file_in.readline()
-    # get string replacement variable depending on source
+    # get string replacement variable depending on RDF source
     RDF_TYPE = rdf_origin(rdf_file_ok)
-    # switching back to in_file instead of rdf_file_ok.
     # build table according to files specs. get max no of reagents & products at the same time.
     my_table, max_reagents, max_products = build_empty_table(rdf_file_ok, RDF_TYPE)
 
@@ -298,6 +318,8 @@ def create_csv(rdf_file_ok: str, rdf_file_csv: str):
     multiple_row_text = ""
 
     # get first line as "seed" for upcoming loop
+    with open(rdf_file_ok) as file_in:
+        seed_line = file_in.readline()
     previous_line = seed_line
 
     for line in open(rdf_file_ok):
