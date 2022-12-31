@@ -2,8 +2,8 @@
 """
 Created on Tues Feb 23 21:00:00 2021
 RDF converter & fixer
-Version 2.2.2 (Dec 08 12:56:00 2022)
-Updated Dec 221, 2022
+Version 2.2.3 (Dec 08 12:56:00 2022)
+Updated Dec 30, 2022
 
 @author: Alexander Minidis (DocMinus)
 
@@ -25,14 +25,13 @@ def main():
     as well as a tabular CSV output file.
     The original file remains untouched.
 
-    This demo script is after V2 even more light-weight.
     Usage:
     convert_example.py /home/user/my_rdf_file.rdf True/False
     or
     convert_example.py /home/user/subdir/
     the flag True/False is optional;
     default is True and will do both, fix and convert
-    Falso will only fix the file(s), not create csv file.
+    False will only fix the file(s), not create csv file.
     """
 
     try:
@@ -43,10 +42,9 @@ def main():
     # argparse would be an alternative. check the jupyter book for an example
 
     print("Initiating conversion...")
-    # if you just want to fix but not convert to csv:
-    rdf_fixer.fix(sys.argv[1], False)
-    # to fix AND convert (with or without using True statement):
     rdf_fixer.fix(sys.argv[1])
+    # or below example without csv creation
+    rdf_fixer.fix(sys.argv[1], False)
     print("And done.")
 
     return None

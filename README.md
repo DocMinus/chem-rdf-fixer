@@ -13,7 +13,7 @@ In Knime, the Erlwood extenstion "Chemical Reaction File Reader" won't work at a
 
 ### Requirements:
 #### Python 
-V3.6, V3.7, V3.8 (not tested with lower versions, should work though)<br>
+>= V3.6 (not tested with lower versions, should work though)<br>
 Windows or Linux. MacOS not tested. Preferably an (Ana)Conda installation.
 #### RDKIT 
 You will have to install this first, before installing the package, since not available via setup.<br>
@@ -45,18 +45,19 @@ use the flag option if you only want to fix file(s) but not create csv files.
 `convert_example.py "./filename.rdf"` for single file usage (with or without quotes)<br>
 `convert_example.py /directory/` for RDF files in directory including all subdirectories <br>
 <br>
-**New V1.05:** added a Jupyter notebook:<br>
-in your shell or cmd line type: `jupyter notebook convert_example.ipynb`<br>
-**New V2.00:** rewritten and simplified the module. Added setup to do pip install from git repo.<br>
-**New V2.01:** function returns a zipped list containing all file names.<br>
-**New V2.2:** small changes and slight version number format change.<br>
-**New V2.3:** added minimum mol sanitizations else errors in structures would make it crash.<br>
-**New V2.6:** addded support for ICSynth files.<br>
+**V1.05:** added a Jupyter notebook: in your shell or cmd line type: `jupyter notebook convert_example.ipynb`<br>
+**V2.00:** rewritten and simplified the module. Added setup to do pip install from git repo.<br>
+**V2.01:** function returns a zipped list containing all file names.<br>
+**V2.2:** small changes and slight version number format change.<br>
+**V2.3:** added minimum mol sanitizations else errors in structures would make it crash.<br>
+**V2.6:** addded support for ICSynth files.<br>
 **V2.6.2:** some bug fixes and (re)introduction of check for pre-existing fixed files. And fixed documentation in the module as well (it was pointing to convert instead of fix).<br>
 **V2.7.0:** multiple changes: renamed testfile plus an additional one. support for spresi files. some renaming/clarification of certain variables. added optional flag to just fix and not convert<br>
+**V3.0.1:** some inconsistencies changed. more rewriting of the code (less nesting).
+<br>
 
 ### Testing
-The _testfiles_ folder contains three RDF files for a quick test with the Scifinder one containing an erroneous (i.e. missing) structre. 
+The _testfiles_ folder contains three RDF files for a quick test; where e.g. the Scifinder one contains an erroneous (i.e. missing) structre. 
 Please note that  copyright for the enclosed test data lies with the respective companies (see also License section).<br>
 
 ### Notes:

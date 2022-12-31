@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="rdf_fixer",
-    version="2.7.0",
+    version="3.0.1",
     description="Chemical rdf fixer for Reaxys and SciFinder exports",
     url="https://github.com/DocMinus/chem-rdf-fixer",
     author="Alexander Minidis, DocMinus",
