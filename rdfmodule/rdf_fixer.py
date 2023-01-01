@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 """
 Chemical RDF converter & fixer.
-Version 3.0.1 (Feb 09, 14:15:00 2022)
-Update: Dec 31, 2022.
-Even more rewriting. still horrible, but works.
+Version 3.0.2 (Feb 09, 14:15:00 2022)
+Update: Jan 01, 2023.
+Even more rewriting. still "horrible", but works.
 
 run by calling
 rdf_fixer.fix(filename or path. flag)
@@ -13,13 +13,14 @@ flag = False; or True (default)
 @author: Alexander Minidis (DocMinus)
 
 license: MIT License
-Copyright (c) 2021-2022 DocMinus
+Copyright (c) 2021-2023 DocMinus
 """
 
 
 import os
 import re
 import pandas as pd
+import numpy as np
 from collections import OrderedDict
 import rdkit.Chem as rdc
 from rdkit.Chem.MolStandardize import rdMolStandardize
@@ -40,19 +41,19 @@ class Files:
 
     def rdf_to_rdffix_zipped(self):
         return zip(self.rdf_source, self.rdf_fixed)
-        # sort of kind of optional. leaving it as a learning thingy.
+        # comment to myself: sort of kind of optional, 
+        # one could access variables in init instead.
     
 
 
-def files_to_read(rdf_source: str):
+def files_to_read(rdf_source: str) -> Files:
     """Retrieving all .RDF files in a subdirectory recursively, or only a single rdf file.
-    Called by the fix function.
+    Is called by the fix() function.
     Parts of os.walk snippet originated on Reddit somewhere, forgot where though.
     Args:
         rdf_source: filename, alt. directory and subdirectories to scan
     Returns:
-        two zipped lists: 1. rdf in, rdf out names
-        2. rdf out and csv filenames
+        resolved filenames via Files() class.
     """
 
     file_list_in = []
@@ -102,25 +103,20 @@ def files_to_read(rdf_source: str):
     
     myfiles = Files(file_list_in, file_list_ok, file_list_csv)
 
-    if len(file_list_in) > 0:
-        rdfnames_fix_zipped = zip(file_list_in, file_list_ok)
-        rdfnames_convert_zipped = zip(file_list_ok, file_list_csv)
-        # note: zip gets unpacked upon usage and disappears!
-
     return myfiles
-    #return rdfnames_fix_zipped, rdfnames_convert_zipped
 
 
 def fix(rdf_source: str, convert_to_csv=True):
     """Fix erroneous entries (empty mols) by deleting those entries
+    Entry function. Calls files_to_read and, when True, convert.
     Args:
-        rdf_source: filename, alt. directory and subdirectories to scan
+        rdf_source: filename, alt. directory and subdirectories to scan.
         convert_to_csv: default is True, then it will also convert to csv.
     Returns:
         None. Indirectly, converted files are the result.
     """
+
     myfiles = files_to_read(rdf_source)
-    print(myfiles)
     for rdf_file_in, rdf_file_ok in myfiles.rdf_to_rdffix_zipped():
         print("Fixing File: ", rdf_file_in)
         with open(rdf_file_in) as file_in:
@@ -169,8 +165,7 @@ def fix(rdf_source: str, convert_to_csv=True):
             file_out.write(previous_line)
             # the last line is not caught in the loop, hence written out here.
 
-    if convert_to_csv:
-        convert(myfiles)
+    if convert_to_csv: convert(myfiles)
 
     return None
 
@@ -286,7 +281,7 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str):
         return da_table, max_reagents, max_products
 
 
-    print("Converting to csv.")
+    print("Converting to csv: ", rdf_file_ok)
     ##############################################################
     # Initialize Table and diverse variables
     # get string replacement variable depending on RDF source
@@ -702,7 +697,7 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str):
     ############################################
     # Finish table for export to csv file format
 
-    my_table = my_table.replace(pd.np.nan, "", regex=True)  # need to remove NaN
+    my_table = my_table.replace(np.nan, "", regex=True)  # need to remove NaN
     my_table.drop(
         list(my_table.filter(regex="COPYRIGHT")), axis=1, inplace=True
     )  # skip the copyright (optional)

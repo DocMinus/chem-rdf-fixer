@@ -8,7 +8,7 @@ Updated Dec 30, 2022
 @author: Alexander Minidis (DocMinus)
 
 license: MIT License
-Copyright (c) 2021-2022 DocMinus
+Copyright (c) 2021-2023 DocMinus
 """
 
 import warnings
