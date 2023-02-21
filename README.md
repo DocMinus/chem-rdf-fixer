@@ -1,4 +1,5 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 # Chemistry RDF fixer / converter
 Converts chemistry containing RDF files stemming from Scifinder or Reaxys. A new addition is the support for Infochem's ICsynth RDFs.<br>
 It fixes missing molecule blocks by removing corresponding entries entirely and some potential small errors (remove certain empty lines, or use uppercase for certain tags)<br>
@@ -13,19 +14,15 @@ In Knime, the Erlwood extenstion "Chemical Reaction File Reader" won't work at a
 
 ### Requirements:
 #### Python 
->= V3.6 (not tested with lower versions, should work though)<br>
+requires >= V3.8.<br>
 Windows or Linux. MacOS not tested. Preferably an (Ana)Conda installation.
-#### RDKIT 
-You will have to install this first, before installing the package, since not available via setup.<br>
-`conda install -c conda-forge rdkit`<br>
-(yields the latest one compatible with your current Python version)<br>
 
 ### Installation
 If you downloaded/cloned the code:<br>
 `python setup.py install`<br>
 or directly from the repository<br>
 `python -m pip install git+https://github.com/DocMinus/chem-rdf-fixer.git` <br>
-Updating to a newer version via `--upgrade` or `-U` flag.<br>
+Updating to a newer version via `--upgrade` or `-U` flag.<br> 
 
 #### Optional: Jupyter notebook
 This is only if you want to run the .ipynb file from your browser:
@@ -44,16 +41,6 @@ use the flag option if you only want to fix file(s) but not create csv files.
 ### Implement e.g. via the enclosed example script or Jupyter Notebook:<br>
 `convert_example.py "./filename.rdf"` for single file usage (with or without quotes)<br>
 `convert_example.py /directory/` for RDF files in directory including all subdirectories <br>
-<br>
-**V1.05:** added a Jupyter notebook: in your shell or cmd line type: `jupyter notebook convert_example.ipynb`<br>
-**V2.00:** rewritten and simplified the module. Added setup to do pip install from git repo.<br>
-**V2.01:** function returns a zipped list containing all file names.<br>
-**V2.2:** small changes and slight version number format change.<br>
-**V2.3:** added minimum mol sanitizations else errors in structures would make it crash.<br>
-**V2.6:** addded support for ICSynth files.<br>
-**V2.6.2:** some bug fixes and (re)introduction of check for pre-existing fixed files. And fixed documentation in the module as well (it was pointing to convert instead of fix).<br>
-**V2.7.0:** multiple changes: renamed testfile plus an additional one. support for spresi files. some renaming/clarification of certain variables. added optional flag to just fix and not convert<br>
-**V3.0.1/2:** some inconsistencies changed. more rewriting of the code (less nesting); double checked spresi files.
 <br>
 
 ### Testing
