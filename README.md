@@ -1,6 +1,6 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 ![GitHub](https://img.shields.io/github/license/docminus/chem-rdf-fixer)
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/docminus/chem-rdf-fixer))
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/docminus/chem-rdf-fixer)
 
 # Chemistry RDF fixer / converter
 Converts chemistry containing RDF files stemming from Scifinder or Reaxys. A new addition is the support for Infochem's ICsynth RDFs.<br>
