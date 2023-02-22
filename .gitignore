@@ -9,5 +9,6 @@
 *.csv
 *_fixed.rdf
 tmp*.py
+test.py
 
 *2.py
