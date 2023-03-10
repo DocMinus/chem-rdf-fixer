@@ -56,5 +56,5 @@ Converting the current function(s) into a class has also been abandoned, there i
 ### License
 Independent of the code or whatever license, the test files provided are not to be included for further distribution other than ones initial testing.<br>
 The copyright for the data for these files lies with the providers (Deepmatter/Infochem, ACS, Elsevier Life Sciences IP Limited) and not with the author or anyone reusing/changing this code.<br>
-For the code section: Copyright (c) 2021-2022 DocMinus, MIT License (see also LICENSE file).
+For the code section: Copyright (c) 2021-2023 DocMinus, MIT License (see also LICENSE file).
 
