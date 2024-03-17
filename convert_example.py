@@ -8,13 +8,14 @@ Updated Dec 30, 2022
 @author: Alexander Minidis (DocMinus)
 
 license: MIT License
-Copyright (c) 2021-2023 DocMinus
+Copyright (c) 2021-2024 DocMinus
 """
 
 import warnings
 
 warnings.filterwarnings("ignore")
 import sys
+
 from rdfmodule import rdf_fixer
 
 

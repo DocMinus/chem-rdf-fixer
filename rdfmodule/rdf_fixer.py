@@ -2,30 +2,31 @@
 # -*- coding: utf-8 -*-
 """
 Chemical RDF converter & fixer.
-Version 3.0.3 (Feb 09, 14:15:00 2022)
-Update: Feb 22, 2023.
-Even more rewriting.
+Version 3.0.8 (Feb 09, 14:15:00 2022)
+Update: Mar 17, 2024.
+No code changes, only pypi updates to installer.
 
 run by calling
-rdf_fixer.fix(filename or path. flag)
+rdf_fixer.fix(filename or path, flag)
 flag = False; or True (default)
 
 @author: Alexander Minidis (DocMinus)
 
 license: MIT License
-Copyright (c) 2021-2023 DocMinus
+Copyright (c) 2021-2024 DocMinus
 """
 
 
 import os
 import re
-import pandas as pd
-import numpy as np
 from enum import Enum
 from typing import Tuple
+
+import numpy as np
+import pandas as pd
 import rdkit.Chem as rdc
-from rdkit.Chem.MolStandardize import rdMolStandardize
 from rdkit import RDLogger
+from rdkit.Chem.MolStandardize import rdMolStandardize
 
 # Important, or else waaaay too many RDkit details in output
 RDLogger.logger().setLevel(RDLogger.CRITICAL)
@@ -423,9 +424,9 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
 
                     # some mols might be empty, this if/else positions reagents/products accordingly
                     if counter_reagents + 1 <= number_reagents:
-                        my_table.loc[
-                            rxn_id, my_table.columns[counter_reagents]
-                        ] = smiles
+                        my_table.loc[rxn_id, my_table.columns[counter_reagents]] = (
+                            smiles
+                        )
                         counter_reagents += 1
                     else:
                         my_table.loc[
