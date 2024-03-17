@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Chemical RDF converter & fixer.
-Version 3.0.7 (Feb 09, 14:15:00 2022)
+Version 3.0.8 (Feb 09, 14:15:00 2022)
 Update: Mar 17, 2024.
 No code changes, only pypi updates to installer.
 

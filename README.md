@@ -1,7 +1,6 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 ![GitHub](https://img.shields.io/github/license/docminus/chem-rdf-fixer)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/docminus/chem-rdf-fixer)
-![PyPI](https://img.shields.io/pypi/v/your-package-name)
 ![Python](https://img.shields.io/badge/Python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)
 
 # Chemistry RDF fixer / converter
@@ -33,11 +32,10 @@ If you downloaded/cloned the code:
 ```bash
 pip install .
 ```
-or directly from the repository:
+Yet another way, directly from the repository:
 ```bash
 python -m pip install git+https://github.com/DocMinus/chem-rdf-fixer.git`
 ```
-Update existing to a newer version via `--upgrade` or `-U` flag.<br> 
 
 
 #### Optional: Jupyter notebook
@@ -74,9 +72,16 @@ rdf_fixer.fix("file or directory name", flag=False)
 The _testfiles_ folder contains three RDF files for a quick test; where e.g. the Scifinder one contains an erroneous (i.e. missing) structre. 
 Please note that  copyright for the enclosed test data lies with the respective companies (see also License section).<br>
 
+
 ### Notes:
 The parsing is by no means perfect, though a best effort was made. Suggestions for changes are welcome, please submit an issue or do your own fork.<br> 
 Converting the current function(s) into a class has also been abandoned, there is no point really, since it doesn't have to be persistent the way it is applied here.<br>
+
+
+### Update history
+See the "VERSIONS.md" readme file.
+
+
 
 ### License
 Independent of the code or whatever license, the test files provided are not to be included for further distribution other than ones initial testing.<br>
