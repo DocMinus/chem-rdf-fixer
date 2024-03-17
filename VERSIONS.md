@@ -8,4 +8,4 @@
 **V2.7.0:** multiple changes: renamed testfile plus an additional one. support for spresi files. some renaming/clarification of certain variables. added optional flag to just fix and not convert<br>
 **V3.0.1/2:** some inconsistencies changed. more rewriting of the code (less nesting); double checked spresi files.<br>
 **V3.0.3:** setup.py updated, Rdkit these days doesn't need separate installation. functions documentations & some code cleaned. <br>
-**V3.0.8:** minor updates for Pypi packaging; readme and copyright notice.
+**V3.0.9:** minor updates for Pypi packaging; readme and copyright notice; docstring updated.

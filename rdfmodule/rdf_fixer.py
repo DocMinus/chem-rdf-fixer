@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Chemical RDF converter & fixer.
-Version 3.0.8 (Feb 09, 14:15:00 2022)
+Version 3.0.9 (Feb 09, 14:15:00 2022)
 Update: Mar 17, 2024.
 No code changes, only pypi updates to installer.
 
@@ -51,7 +51,9 @@ class Files:
 def files_to_read(rdf_source: str) -> Files:
     """Retrieving all .RDF files in a subdirectory recursively, or only a single rdf file.
     Is called by the fix() function.
+
     Parts of os.walk snippet originated on Reddit somewhere, forgot where though.
+
     Args:
         rdf_source: filename, alt. directory and subdirectories to scan
     Returns:
@@ -107,8 +109,10 @@ def files_to_read(rdf_source: str) -> Files:
 
 
 def fix(rdf_source: str, convert_to_csv=True) -> None:
-    """Fix erroneous entries (empty mols) by deleting those entries
-    Entry function. Calls files_to_read and, when True, convert.
+    """Fix erroneous entries (empty mols) by deleting those entries.
+
+    Calls files_to_read converts to csv.
+
     Args:
         rdf_source: filename, alt. directory and subdirectories to scan.
         convert_to_csv: default is True, then it will also convert to csv.
@@ -184,6 +188,7 @@ def convert(myfiles: Files) -> None:
 
 def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
     """CSV from RDF convert function
+
     Args:
         rdf_file_ok: new RDF file with corrections (if any)
         rdf_file_csv: resulting CSV file (incl. path)
