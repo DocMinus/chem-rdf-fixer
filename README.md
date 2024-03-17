@@ -1,6 +1,8 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 ![GitHub](https://img.shields.io/github/license/docminus/chem-rdf-fixer)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/docminus/chem-rdf-fixer)
+![PyPI](https://img.shields.io/pypi/v/your-package-name)
+![Python](https://img.shields.io/badge/Python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)
 
 # Chemistry RDF fixer / converter
 Converts chemistry containing RDF files stemming from Scifinder or Reaxys. A new addition is the support for Infochem's ICsynth RDFs.<br>
@@ -15,35 +17,58 @@ Examples are MarvinSketch or MarvinView. They sometimes are able to handle missi
 In Knime, the Erlwood extenstion "Chemical Reaction File Reader" won't work at all.
 
 ### Requirements:
-#### Python 
-requires >= V3.8.<br>
-Windows or Linux. MacOS not tested. Preferably an (Ana)Conda installation.
+Python >= V3.8.<br>
+Windows or Linux. MacOS not tested. <br>
+Type of installation shouldn't matter (Vanilla/Conda/Mamba/venv).
+
 
 ### Installation
-If you downloaded/cloned the code:<br>
-`python setup.py install`<br>
-or directly from the repository<br>
-`python -m pip install git+https://github.com/DocMinus/chem-rdf-fixer.git` <br>
-Updating to a newer version via `--upgrade` or `-U` flag.<br> 
+#### Simplest: pip install (from Pypi)
+```bash
+pip install rdf-fixer
+```
+
+#### "Manualy"
+If you downloaded/cloned the code:
+```bash
+pip install .
+```
+or directly from the repository:
+```bash
+python -m pip install git+https://github.com/DocMinus/chem-rdf-fixer.git`
+```
+Update existing to a newer version via `--upgrade` or `-U` flag.<br> 
+
 
 #### Optional: Jupyter notebook
 This is only if you want to run the .ipynb file from your browser:
-`conda install -c anaconda jupyter`
+```bash
+conda install -c anaconda jupyter
+```
+
 
 ### Importing the module:<br>
-e.g.:
-`from rdfmodule import rdf_fixer`
+```python
+from rdfmodule import rdf_fixer
+```
+
 
 ### Usage:
-`rdf_fixer.fix("input RDF filename or path containing rdf files")`<br>
-or<br>
-`rdf_fixer.fix("file(s)", flag=True(default)/False)`<br>
-use the flag option if you only want to fix file(s) but not create csv files.
+To fix a single RDF file, or a whole folder containing multiple RDF files:
+```python
+rdf_fixer.fix("file or directory name")
+```
+There is an optional flag (True/False), with default being True, creating csv files as well. To skip csv creation, set flag to False.
+```python
+rdf_fixer.fix("file or directory name", flag=False)
+```
+
 
 ### Implement e.g. via the enclosed example script or Jupyter Notebook:<br>
 `convert_example.py "./filename.rdf"` for single file usage (with or without quotes)<br>
 `convert_example.py /directory/` for RDF files in directory including all subdirectories <br>
 <br>
+
 
 ### Testing
 The _testfiles_ folder contains three RDF files for a quick test; where e.g. the Scifinder one contains an erroneous (i.e. missing) structre. 
@@ -56,5 +81,6 @@ Converting the current function(s) into a class has also been abandoned, there i
 ### License
 Independent of the code or whatever license, the test files provided are not to be included for further distribution other than ones initial testing.<br>
 The copyright for the data for these files lies with the providers (Deepmatter/Infochem, ACS, Elsevier Life Sciences IP Limited) and not with the author or anyone reusing/changing this code.<br>
-For the code section: Copyright (c) 2021-2023 DocMinus, MIT License (see also LICENSE file).
+For the code section: Copyright (c) 2021-2024 DocMinus, MIT License (see also LICENSE file).<br>
+If you add a shout-out to your code, I don't mind!
 

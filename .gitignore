@@ -1,14 +1,14 @@
-# Pycharm IDE
 **/.idea/
 **/__pycache__
-
 **/.ipynb_checkpoints
-
-# other
+**/*egg-info
+**/build
+**/dist
 **/src
 *.csv
 *_fixed.rdf
 tmp*.py
 test.py
-
 *2.py
+gnurff.py
+.pypirc
