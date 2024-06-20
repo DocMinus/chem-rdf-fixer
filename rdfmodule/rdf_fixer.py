@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 """
 Chemical RDF converter & fixer.
-Version 3.0.9 (Feb 09, 14:15:00 2022)
-Update: Mar 17, 2024.
-No code changes, only pypi updates to installer.
+Version 3.1.1 (Feb 09, 14:15:00 2022)
+Update: Jun 20, 2024.
+decoding issue fixed, now utf-8 encoding.
 
 run by calling
 rdf_fixer.fix(filename or path, flag)
@@ -123,13 +123,13 @@ def fix(rdf_source: str, convert_to_csv=True) -> None:
     myfiles = files_to_read(rdf_source)
     for rdf_file_in, rdf_file_ok in myfiles.rdf_to_rdffix_zipped():
         print("Fixing File: ", rdf_file_in)
-        with open(rdf_file_in) as file_in:
+        with open(rdf_file_in, encoding="utf-8") as file_in:
             seed_line = file_in.readline()
         previous_line = seed_line  # get first line as "seed" for upcoming loop
-        with open(rdf_file_ok, "w") as file_out:
+        with open(rdf_file_ok, "w", encoding="utf-8") as file_out:
             write_to_file: str = "dummy"  # was bool before, now a tidbit cleaner
             counter = 0  # in case one needs to change entry enumeration
-            for current_line in open(rdf_file_in):
+            for current_line in open(rdf_file_in, encoding="utf-8"):
                 # prevent first line from being written twice
                 if current_line.startswith("$RDFILE") and previous_line.startswith(
                     "$RDFILE"
@@ -223,7 +223,7 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
         pattern_infochem = re.compile(".+Infochem|.+ACS")
         pattern_reaxys = re.compile(".+Marvin")
 
-        with open(in_file) as f:
+        with open(in_file, encoding="utf-8") as f:
             for line in f:
                 if pattern_scifinder.match(line) and pattern_infochem.match(line):
                     return RdfSource.INFOCHEM.value
@@ -280,7 +280,7 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
 
         # Get the IDs and use as row index
         list_of_IDs = []
-        with open(in_file) as f:
+        with open(in_file, encoding="utf-8") as f:
             for line in f:
                 if line.startswith("$RFMT"):
                     list_of_IDs.append(line.strip().split(" ")[2])
@@ -289,7 +289,7 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
         flag = 0
         max_reagents = 0
         max_products = 0
-        for line in open(in_file):
+        for line in open(in_file, encoding="utf-8"):
             if line.startswith("$RXN") | flag == 1:
                 flag = 1
                 if re.match("\s\s[0-9]\s\s[0-9]\n", line):
@@ -307,7 +307,7 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
         # Build the column headers
         columns = [f"Reagent{i}" for i in range(max_reagents)]
         columns += [f"Product{i}" for i in range(max_products)]
-        with open(in_file) as f:
+        with open(in_file, encoding="utf-8") as f:
             for line in f:
                 if line.startswith("$DTYPE"):
                     columns.append((line.strip().split(" ")[1]).replace(rdf_type, ""))
@@ -349,11 +349,11 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
     multiple_row_text = ""
 
     # get first line as "seed" for upcoming loop
-    with open(rdf_file_ok) as file_in:
+    with open(rdf_file_ok, encoding="utf-8") as file_in:
         seed_line = file_in.readline()
     previous_line = seed_line
 
-    for line in open(rdf_file_ok):
+    for line in open(rdf_file_ok, encoding="utf-8"):
         current_line = line
 
         # get reaction ID
@@ -458,7 +458,7 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
     rxn_id = ""
     previous_line = seed_line
 
-    for line in open(rdf_file_ok):
+    for line in open(rdf_file_ok, encoding="utf-8"):
         current_line = line
 
         # get reaction ID
@@ -490,7 +490,7 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
     multiple_row_text = ""
     previous_line = seed_line
 
-    for line in open(rdf_file_ok):
+    for line in open(rdf_file_ok, encoding="utf-8"):
         current_line = line
 
         # get reaction ID
@@ -556,7 +556,7 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
     multiple_row_text = ""
     previous_line = seed_line
 
-    for line in open(rdf_file_ok):
+    for line in open(rdf_file_ok, encoding="utf-8"):
         current_line = line
 
         # get reaction ID
@@ -602,7 +602,7 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
     multiple_row_text = ""
     previous_line = seed_line
 
-    for line in open(rdf_file_ok):
+    for line in open(rdf_file_ok, encoding="utf-8"):
         current_line = line
 
         # get reaction ID
@@ -648,7 +648,7 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
     multiple_row_text = ""
     previous_line = seed_line
 
-    for line in open(rdf_file_ok):
+    for line in open(rdf_file_ok, encoding="utf-8"):
         current_line = line
 
         # get reaction ID
@@ -697,7 +697,7 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
     multiple_row_text = ""
     previous_line = seed_line
 
-    for line in open(rdf_file_ok):
+    for line in open(rdf_file_ok, encoding="utf-8"):
         current_line = line
 
         # get reaction ID
@@ -737,7 +737,7 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
     my_table.drop(
         list(my_table.filter(regex="COPYRIGHT")), axis=1, inplace=True
     )  # skip the copyright (optional)
-    my_table.to_csv(rdf_file_csv, sep="\t", header=True, index=True)
+    my_table.to_csv(rdf_file_csv, sep="\t", header=True, index=True, encoding="utf-8")
 
     # end of script
     # one could add a return value for better error handling.
