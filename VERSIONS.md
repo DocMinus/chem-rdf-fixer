@@ -9,3 +9,4 @@
 **V3.0.1/2:** some inconsistencies changed. more rewriting of the code (less nesting); double checked spresi files.<br>
 **V3.0.3:** setup.py updated, Rdkit these days doesn't need separate installation. functions documentations & some code cleaned. <br>
 **V3.0.9:** minor updates for Pypi packaging; readme and copyright notice; docstring updated.
+**V3.1.1:** fixed an issue with the decoding where it would crash with certain characters, esp. on Windows. Now all is UTF-8 (hardcoded)
