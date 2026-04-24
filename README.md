@@ -13,7 +13,7 @@ Other sources e.g. MarvinSketch or ChemDraw should work with these converted fil
 ## Why would you need this?
 Because RDF files that contain a missing structure might throw errors in certain programs or even make them crash.<br>
 Examples are MarvinSketch or MarvinView. They sometimes are able to handle missing reaction structures, sometimes not.<br>
-In Knime, the Erlwood extenstion "Chemical Reaction File Reader" won't work at all.
+In Knime, the Erlwood extenstion "Chemical Reaction File Reader" won't work at all (not tested in 2026 if that was fixed or not).
 
 ### Requirements:
 Python >= V3.8.<br>
@@ -22,27 +22,41 @@ Type of installation shouldn't matter (Vanilla/Conda/Mamba/venv).
 
 
 ### Installation
-#### Simplest: pip install (from Pypi)
+
+#### Option 1: Install from PyPI (simplest)
+Install to your existing environment:
+
 ```bash
 pip install rdf-fixer
 ```
 
-#### "Manualy"
-If you downloaded/cloned the code:
+#### Option 2: Install from source (for development)
+If you downloaded/cloned the code for development:
+
+```bash
+# Create and activate a virtual environment (recommended)
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Install the package in development mode
+pip install -e .
+```
+
+Or simply:
 ```bash
 pip install .
 ```
-Yet another way, directly from the repository:
-```bash
-python -m pip install git+https://github.com/DocMinus/chem-rdf-fixer.git`
-```
-
 
 #### Optional: Jupyter notebook
 This is only if you want to run the .ipynb file from your browser:
 ```bash
-conda install -c anaconda jupyter
+pip install notebook
 ```
+
+**Note:** The `setup.py` is used for package installation (PyPI releases or local `pip install .`). For setting up a development environment with dependencies, use `requirements.txt`.
 
 
 ### Importing the module:<br>

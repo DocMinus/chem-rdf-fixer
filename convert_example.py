@@ -2,8 +2,8 @@
 """
 Created on Tues Feb 23 21:00:00 2021
 RDF converter & fixer
-Version 2.2.3 (Dec 08 12:56:00 2022)
-Updated Dec 30, 2022
+Version 3.2.0 (Apr 24, 2026)
+Update: Refactoring to cleaner responsibilities without breaking code.
 
 @author: Alexander Minidis (DocMinus)
 
