@@ -237,7 +237,7 @@ def build_empty_table(in_file: str, rdf_type: str) -> Tuple[pd.DataFrame, int, i
     for line in open(in_file, encoding="utf-8"):
         if line.startswith("$RXN") | flag == ParseState.REACTION_BLOCK.value:
             flag = ParseState.REACTION_BLOCK.value
-            if re.match("\s\s[0-9]\s\s[0-9]\n", line):
+            if re.match(r"\s\s[0-9]\s\s[0-9]\n", line):
                 # analyse the "  y  z" line.
                 # implies: y reactants, z products.
                 x = line.strip().split("  ")
@@ -321,7 +321,7 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
         # start of a new reaction block
         if current_line.startswith("$RXN") | flag == ParseState.REACTION_BLOCK.value:
             flag = ParseState.REACTION_BLOCK.value
-            if re.match("\s\s[0-9]\s\s[0-9]\n", current_line):
+            if re.match(r"\s\s[0-9]\s\s[0-9]\n", current_line):
                 # analyse the "  y  z" line. Not hard-coding this since it might change?
                 # implies: y reactants, z product.
                 x = current_line.strip().split("  ")
@@ -333,7 +333,7 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
                 for i in range(number_molecules):
                     molecule.append([])
 
-            if current_line == "\n" or re.match("\s\s[0-9]\s\s[0-9]\n", current_line):
+            if current_line == "\n" or re.match(r"\s\s[0-9]\s\s[0-9]\n", current_line):
                 # checks for empty lines and the number of molecules lines and skips them
                 continue
 
