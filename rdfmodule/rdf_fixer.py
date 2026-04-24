@@ -2,9 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 Chemical RDF converter & fixer.
-Version 3.1.1 (Feb 09, 14:15:00 2022)
-Update: Jun 20, 2024.
-decoding issue fixed, now utf-8 encoding.
+Version 3.2.0 (Apr 24, 2026)
+Update: Refactoring to cleaner responsibilities without breaking code.
 
 run by calling
 rdf_fixer.fix(filename or path, flag)
@@ -19,6 +18,7 @@ Copyright (c) 2021-2024 DocMinus
 
 import os
 import re
+from dataclasses import dataclass
 from enum import Enum
 from typing import Tuple
 
@@ -32,20 +32,26 @@ from rdkit.Chem.MolStandardize import rdMolStandardize
 RDLogger.logger().setLevel(RDLogger.CRITICAL)
 
 
-class Files:
-    """
-    Collects the filenames into a class, thus less variables needed for function declarations
-    """
+class ParseState(Enum):
+    GENERIC = 0
+    REACTION_BLOCK = 1
+    MOL_BLOCK = 2
+    CITATION = 4
+    EXP_PROCEDURE = 5
+    NOTES = 6
+    TITLE = 7
+    AUTHORS = 8
+    SKIP = 9
 
-    def __init__(self, provided_rdf_source, provided_rdf_fixed, provided_csv_file):
-        self.rdf_source = provided_rdf_source
-        self.rdf_fixed = provided_rdf_fixed
-        self.csv_file = provided_csv_file
+
+@dataclass
+class Files:
+    rdf_source: list
+    rdf_fixed: list
+    csv_file: list
 
     def rdf_to_rdffix_zipped(self):
         return zip(self.rdf_source, self.rdf_fixed)
-        # comment to myself: sort of kind of optional,
-        # one could access variables in init instead.
 
 
 def files_to_read(rdf_source: str) -> Files:
@@ -94,14 +100,8 @@ def files_to_read(rdf_source: str) -> Files:
                         # (not here in case of different file order)
                         _item_to_remove.append(full_path_in.replace("_fixed", ""))
                     else:
-                        file_list_ok.append(
-                            os.path.join(
-                                subdir, os.path.splitext(file)[0] + "_fixed.rdf"
-                            )
-                        )
-                        file_list_csv.append(
-                            os.path.join(subdir, os.path.splitext(file)[0] + ".csv")
-                        )
+                        file_list_ok.append(os.path.join(subdir, os.path.splitext(file)[0] + "_fixed.rdf"))
+                        file_list_csv.append(os.path.join(subdir, os.path.splitext(file)[0] + ".csv"))
             for x in _item_to_remove:
                 file_list_in.remove(x)
 
@@ -131,21 +131,14 @@ def fix(rdf_source: str, convert_to_csv=True) -> None:
             counter = 0  # in case one needs to change entry enumeration
             for current_line in open(rdf_file_in, encoding="utf-8"):
                 # prevent first line from being written twice
-                if current_line.startswith("$RDFILE") and previous_line.startswith(
-                    "$RDFILE"
-                ):
+                if current_line.startswith("$RDFILE") and previous_line.startswith("$RDFILE"):
                     continue
 
                 # correct molecule block
                 # True
-                write_to_file = current_line.startswith(
-                    "$RXN"
-                ) and previous_line.startswith("$RFMT")
+                write_to_file = current_line.startswith("$RXN") and previous_line.startswith("$RFMT")
                 # else for empty molecule block
-                write_to_file = not (
-                    current_line.startswith("$DTYPE")
-                    and previous_line.startswith("$RFMT")
-                )
+                write_to_file = not (current_line.startswith("$DTYPE") and previous_line.startswith("$RFMT"))
 
                 # here a correction for ICSynth RDFs that have one empty row to many
                 if current_line == "\n" and previous_line.startswith("M  END"):
@@ -156,9 +149,7 @@ def fix(rdf_source: str, convert_to_csv=True) -> None:
 
                 # here a correction for (old) Spresi Rdfs (also Marvin???)
                 # else a csv conversion won't work without extensive changes
-                previous_line = previous_line.replace(
-                    "$RFMT\n", ("$RFMT $RIREG " + str(counter) + "\n")
-                )
+                previous_line = previous_line.replace("$RFMT\n", ("$RFMT $RIREG " + str(counter) + "\n"))
                 counter += 1
 
                 if write_to_file:
@@ -186,6 +177,92 @@ def convert(myfiles: Files) -> None:
     return None
 
 
+def detect_rdf_origin(in_file: str) -> str:
+    """
+    Determines the source of an RDF file by inspecting its contents.
+
+    Args:
+        in_file (str): The filename of the RDF file to be checked.
+
+    Returns:
+        A string indicating the source of the RDF file.
+        - "RXN:" for Scifinder or Infochem ICSynth/SPRESI
+        - "ROOT:" for Reaxys
+    """
+    pattern_scifinder = re.compile(".+SCHEME")
+    pattern_infochem = re.compile(".+Infochem|.+ACS")
+    pattern_reaxys = re.compile(".+Marvin")
+
+    with open(in_file, encoding="utf-8") as f:
+        for line in f:
+            if pattern_scifinder.match(line) and pattern_infochem.match(line):
+                return "RXN:"  # Infochem ICSynth or SPRESI
+            elif pattern_scifinder.match(line) and pattern_infochem.search(line) is None:
+                return "RXN:"  # Scifinder
+            elif pattern_reaxys.match(line):
+                return "ROOT:"  # Reaxys
+
+    return ""
+
+
+def build_empty_table(in_file: str, rdf_type: str) -> Tuple[pd.DataFrame, int, int]:
+    """
+    Scans the RDF file to determine the number of reagents, products, and
+    columns, and constructs an empty pandas DataFrame with the appropriate
+    size and column names.
+
+    Args:
+        in_file (str): The filename of the corrected RDF file.
+        rdf_type (str): A string indicating the source of the RDF file,
+            which is used in replacements.
+            "RXN:" (scifinder/infochem) or string "ROOT:" (reaxys)
+
+    Returns:
+        da_table (object): the (empty) pandas df working table
+        max_reagents (int): number for later positioning of reagents smiles in table
+        max_products (int): <> (products)
+    """
+
+    # Get the IDs and use as row index
+    list_of_IDs = []
+    with open(in_file, encoding="utf-8") as f:
+        for line in f:
+            if line.startswith("$RFMT"):
+                list_of_IDs.append(line.strip().split(" ")[2])
+
+    # Determine max no of reagents/products
+    flag = ParseState.GENERIC.value
+    max_reagents = 0
+    max_products = 0
+    for line in open(in_file, encoding="utf-8"):
+        if line.startswith("$RXN") | flag == ParseState.REACTION_BLOCK.value:
+            flag = ParseState.REACTION_BLOCK.value
+            if re.match("\s\s[0-9]\s\s[0-9]\n", line):
+                # analyse the "  y  z" line.
+                # implies: y reactants, z products.
+                x = line.strip().split("  ")
+                number_reagents = int(x[0])
+                number_products = int(x[1])
+                if number_reagents > max_reagents:
+                    max_reagents = number_reagents
+                if number_products > max_products:
+                    max_products = number_products
+                flag = ParseState.GENERIC.value
+
+    # Build the column headers
+    columns = [f"Reagent{i}" for i in range(max_reagents)]
+    columns += [f"Product{i}" for i in range(max_products)]
+    with open(in_file, encoding="utf-8") as f:
+        for line in f:
+            if line.startswith("$DTYPE"):
+                columns.append((line.strip().split(" ")[1]).replace(rdf_type, ""))
+
+    # Construct the empty table
+    # da_table = pd.DataFrame(index=list_of_IDs, columns=list(OrderedDict.fromkeys(columns)))
+    da_table = pd.DataFrame(index=list_of_IDs, columns=columns)
+    return da_table, max_reagents, max_products
+
+
 def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
     """CSV from RDF convert function
 
@@ -196,132 +273,11 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
         None - output are the new files.
     """
 
-    class RdfSource(Enum):
-        UNKNOWN = ""
-        SCIFINDER = "RXN:"
-        INFOCHEM = "RXN:"
-        REAXYS = "ROOT:"
-
-    def rdf_origin(in_file: str) -> str:
-        """
-        Determines the source of an RDF file by inspecting its contents.
-
-        Args:
-            in_file (str): The filename of the RDF file to be checked.
-
-        Returns:
-            A string indicating the source of the RDF file. The returned string
-            is used by multiple `string.replace()` methods to make the script
-            independent of the source.
-
-            Possible return values are:
-            - RdfSource.SCIFINDER if the file was generated by Scifinder.
-            - RdfSource.INFOCHEM if the file was generated by Infochem ICSynth or (corrected) SPRESI.
-            - RdfSource.REAXYS if the file was generated by Reaxys.
-        """
-        pattern_scifinder = re.compile(".+SCHEME")
-        pattern_infochem = re.compile(".+Infochem|.+ACS")
-        pattern_reaxys = re.compile(".+Marvin")
-
-        with open(in_file, encoding="utf-8") as f:
-            for line in f:
-                if pattern_scifinder.match(line) and pattern_infochem.match(line):
-                    return RdfSource.INFOCHEM.value
-                elif (
-                    pattern_scifinder.match(line)
-                    and pattern_infochem.search(line) is None
-                ):
-                    return RdfSource.SCIFINDER.value
-                elif pattern_reaxys.match(line):
-                    return RdfSource.REAXYS.value
-
-        return RdfSource.UNKNOWN.value
-
-        """
-        original hardcoded, for documentation's sake remaining here:
-
-        f = open(in_file)
-        NUMBER_OF_LINES = 12
-        line: str = []
-        for i in range(NUMBER_OF_LINES):
-            line.append(f.readline())
-        f.close()
-        _rdf = "RXN:"
-        if re.match(".+SCHEME", line[2]) and re.match(".+Infochem", line[10]):
-            # Infochem ICSynth and (corrected) SPRESI
-            pass
-        if re.match(".+SCHEME", line[2]) and re.match(".+ACS", line[11]):
-            # CAS: Scifinder
-            pass
-        if (not re.match(".+SCHEME", line[2])) and re.match(".+Marvin", line[5]):
-            # Reaxys
-            _rdf = "ROOT:"
-        return _rdf
-
-        """
-
-    def build_empty_table(in_file: str, rdf_type: str) -> Tuple[pd.DataFrame, int, int]:
-        """
-        Scans the RDF file to determine the number of reagents, products, and
-        columns, and constructs an empty pandas DataFrame with the appropriate
-        size and column names.
-
-        Args:
-            in_file (str): The filename of the corrected RDF file.
-            rdf_type (str): A string indicating the source of the RDF file,
-                which is used in replacements.
-                "RXN:" (scifinder/infochem) or string "ROOT:" (reaxys)
-
-        Returns:
-            da_table (object): the (empty) pandas df working table
-            max_reagents (int): number for later positioning of reagents smiles in table
-            max_products (int): <> (products)
-        """
-
-        # Get the IDs and use as row index
-        list_of_IDs = []
-        with open(in_file, encoding="utf-8") as f:
-            for line in f:
-                if line.startswith("$RFMT"):
-                    list_of_IDs.append(line.strip().split(" ")[2])
-
-        # Determine max no of reagents/products
-        flag = 0
-        max_reagents = 0
-        max_products = 0
-        for line in open(in_file, encoding="utf-8"):
-            if line.startswith("$RXN") | flag == 1:
-                flag = 1
-                if re.match("\s\s[0-9]\s\s[0-9]\n", line):
-                    # analyse the "  y  z" line.
-                    # implies: y reactants, z products.
-                    x = line.strip().split("  ")
-                    number_reagents = int(x[0])
-                    number_products = int(x[1])
-                    if number_reagents > max_reagents:
-                        max_reagents = number_reagents
-                    if number_products > max_products:
-                        max_products = number_products
-                    flag = 0
-
-        # Build the column headers
-        columns = [f"Reagent{i}" for i in range(max_reagents)]
-        columns += [f"Product{i}" for i in range(max_products)]
-        with open(in_file, encoding="utf-8") as f:
-            for line in f:
-                if line.startswith("$DTYPE"):
-                    columns.append((line.strip().split(" ")[1]).replace(rdf_type, ""))
-
-        # Construct the empty table
-        # da_table = pd.DataFrame(index=list_of_IDs, columns=list(OrderedDict.fromkeys(columns)))
-        da_table = pd.DataFrame(index=list_of_IDs, columns=columns)
-        return da_table, max_reagents, max_products
-
     print("Converting to csv: ", rdf_file_ok)
     ##############################################################
     # Initialize Table and diverse variables
     # get string replacement variable depending on RDF source
-    RDF_TYPE = rdf_origin(rdf_file_ok)
+    RDF_TYPE = detect_rdf_origin(rdf_file_ok)
     # build table according to files specs. get max no of reagents & products at the same time.
     my_table, max_reagents, max_products = build_empty_table(rdf_file_ok, RDF_TYPE)
 
@@ -333,7 +289,7 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
     # (structure same for Reaxys and Scifinder - and Infochem(?))
     #
 
-    flag = 0
+    flag = ParseState.GENERIC.value
     # 0 = generic
     # 1 = start of reaction block
     # 2 = single MOL (molecules)
@@ -359,12 +315,12 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
         # get reaction ID
         if current_line.startswith("$RFMT"):
             rxn_id = str(current_line.strip().split(" ")[2])
-            flag = 0
+            flag = ParseState.GENERIC.value
             continue
 
         # start of a new reaction block
-        if current_line.startswith("$RXN") | flag == 1:
-            flag = 1
+        if current_line.startswith("$RXN") | flag == ParseState.REACTION_BLOCK.value:
+            flag = ParseState.REACTION_BLOCK.value
             if re.match("\s\s[0-9]\s\s[0-9]\n", current_line):
                 # analyse the "  y  z" line. Not hard-coding this since it might change?
                 # implies: y reactants, z product.
@@ -382,8 +338,8 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
                 continue
 
         # after determining a block, find the molecules within the block
-        if (current_line == "$MOL\n") | (flag == 2):
-            flag = 2
+        if (current_line == "$MOL\n") | (flag == ParseState.MOL_BLOCK.value):
+            flag = ParseState.MOL_BLOCK.value
 
             if current_line != "$MOL\n" and (iterate_molecules < number_molecules):
                 molecule[iterate_molecules].append(current_line)
@@ -393,7 +349,7 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
 
             # end of the complete reaction block
             if current_line.startswith("$D") & (previous_line == "M  END\n"):
-                flag = 9  # could just use flag = 0(?)
+                flag = ParseState.SKIP.value
                 # rebuild the string of a molecule
                 counter_reagents = 0
                 counter_products = 0
@@ -418,20 +374,14 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
                         mol.UpdatePropertyCache(strict=False)
                         rdc.SanitizeMol(
                             mol,
-                            sanitizeOps=(
-                                rdc.SANITIZE_ALL
-                                ^ rdc.SANITIZE_CLEANUP
-                                ^ rdc.SANITIZE_PROPERTIES
-                            ),
+                            sanitizeOps=(rdc.SANITIZE_ALL ^ rdc.SANITIZE_CLEANUP ^ rdc.SANITIZE_PROPERTIES),
                         )
                         mol = rdMolStandardize.Normalize(mol)
                         smiles = rdc.MolToSmiles(mol)
 
                     # some mols might be empty, this if/else positions reagents/products accordingly
                     if counter_reagents + 1 <= number_reagents:
-                        my_table.loc[rxn_id, my_table.columns[counter_reagents]] = (
-                            smiles
-                        )
+                        my_table.loc[rxn_id, my_table.columns[counter_reagents]] = smiles
                         counter_reagents += 1
                     else:
                         my_table.loc[
@@ -451,7 +401,6 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
     #
     ######### GET single line data ##########
     #
-
     # Nota bene: this will write first line of multiline columns as well
     # but doesn't matter since those will be correctly overwritten later on
 
@@ -482,7 +431,7 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
     # Reaxys, Scifinder, Infochem
     #
 
-    flag = 0
+    flag = ParseState.GENERIC.value
     # 0 = generic
     # 5 = exp procedure text over multiple lines
     # 9 = skip
@@ -496,48 +445,38 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
         # get reaction ID
         if current_line.startswith("$RFMT"):
             rxn_id = str(current_line.strip().split(" ")[2])
-            flag = 0
+            flag = ParseState.GENERIC.value
             continue
 
         # get experimental section
         if RDF_TYPE.upper() == "RXN:":
-            if re.match(".+EXP_PROC", previous_line) or flag == 5:
+            if re.match(".+EXP_PROC", previous_line) or flag == ParseState.EXP_PROCEDURE.value:
                 # start of the experimental section. spans over multiple line
                 if re.match(".+EXP_PROC", previous_line):
-                    current_column = (
-                        previous_line.strip().split(" ")[1].replace(RDF_TYPE, "")
-                    )
+                    current_column = previous_line.strip().split(" ")[1].replace(RDF_TYPE, "")
 
-                if re.match(".+NOTES", current_line) or re.match(
-                    ".+REFERENCE.+", current_line
-                ):
+                if re.match(".+NOTES", current_line) or re.match(".+REFERENCE.+", current_line):
                     # this is the end of experimental block
-                    flag = 9
-                    my_table.loc[rxn_id, current_column] = multiple_row_text.replace(
-                        "$DATUM ", ""
-                    )
+                    flag = ParseState.SKIP.value
+                    my_table.loc[rxn_id, current_column] = multiple_row_text.replace("$DATUM ", "")
                     multiple_row_text = ""
                 else:
                     multiple_row_text += current_line.replace("\n", " ")
-                    flag = 5
+                    flag = ParseState.EXP_PROCEDURE.value
         else:  # Reaxys
-            if re.match(".+TXT", previous_line) or flag == 5:
+            if re.match(".+TXT", previous_line) or flag == ParseState.EXP_PROCEDURE.value:
                 # start of the experimental section. spans over multiple line
                 if re.match(".+TXT", previous_line):
-                    current_column = (
-                        previous_line.strip().split(" ")[1].replace(RDF_TYPE, "")
-                    )
+                    current_column = previous_line.strip().split(" ")[1].replace(RDF_TYPE, "")
 
                 if re.match(".+STP", current_line):
                     # this is the end of experimental block
-                    flag = 9
-                    my_table.loc[rxn_id, current_column] = multiple_row_text.replace(
-                        "$DATUM ", ""
-                    )
+                    flag = ParseState.SKIP.value
+                    my_table.loc[rxn_id, current_column] = multiple_row_text.replace("$DATUM ", "")
                     multiple_row_text = ""
                 else:
                     multiple_row_text += current_line.replace("\n", " ")
-                    flag = 5
+                    flag = ParseState.EXP_PROCEDURE.value
 
         previous_line = current_line
     ################################
@@ -547,7 +486,7 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
     # (only Scifinder)
     #
 
-    flag = 0
+    flag = ParseState.GENERIC.value
     # 0 = generic
     # 6 = notes, text potentially over multiple lines
     # 9 = skip
@@ -562,28 +501,24 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
         # get reaction ID
         if current_line.startswith("$RFMT"):
             rxn_id = str(current_line.strip().split(" ")[2])
-            flag = 0
+            flag = ParseState.GENERIC.value
             continue
 
             # Get Notes
-        if re.match(".+NOTES", previous_line) or flag == 6:
-            flag = 6
+        if re.match(".+NOTES", previous_line) or flag == ParseState.NOTES.value:
+            flag = ParseState.NOTES.value
             # start of the Notes section. might span over multiple line
             if re.match(".+NOTES", previous_line):
-                current_column = (
-                    previous_line.strip().split(" ")[1].replace(RDF_TYPE, "")
-                )
+                current_column = previous_line.strip().split(" ")[1].replace(RDF_TYPE, "")
 
             if current_line.startswith("$DTYPE"):
                 # this is the end of Notes block
-                flag = 9
-                my_table.loc[rxn_id, current_column] = multiple_row_text.replace(
-                    "$DATUM ", ""
-                )
+                flag = ParseState.SKIP.value
+                my_table.loc[rxn_id, current_column] = multiple_row_text.replace("$DATUM ", "")
                 multiple_row_text = ""
             else:
                 multiple_row_text += current_line.replace("\n", " ")
-                flag = 6
+                flag = ParseState.NOTES.value
 
         previous_line = current_line
     ################################
@@ -593,7 +528,7 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
     # (only Scifinder)
     #
 
-    flag = 0
+    flag = ParseState.GENERIC.value
     # 0 = generic
     # 7 = title
     # 9 = skip
@@ -608,28 +543,24 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
         # get reaction ID
         if current_line.startswith("$RFMT"):
             rxn_id = str(current_line.strip().split(" ")[2])
-            flag = 0
+            flag = ParseState.GENERIC.value
             continue
 
             # Get Title
-        if re.match(".+TITLE", previous_line) or flag == 7:
-            flag = 7
+        if re.match(".+TITLE", previous_line) or flag == ParseState.TITLE.value:
+            flag = ParseState.TITLE.value
             # start of the Title section. might span over multiple line
             if re.match(".+TITLE", previous_line):
-                current_column = (
-                    previous_line.strip().split(" ")[1].replace(RDF_TYPE, "")
-                )
+                current_column = previous_line.strip().split(" ")[1].replace(RDF_TYPE, "")
 
             if current_line.startswith("$DTYPE"):
                 # this is the end of title block
-                flag = 9
-                my_table.loc[rxn_id, current_column] = multiple_row_text.replace(
-                    "$DATUM ", ""
-                )
+                flag = ParseState.SKIP.value
+                my_table.loc[rxn_id, current_column] = multiple_row_text.replace("$DATUM ", "")
                 multiple_row_text = ""
             else:
                 multiple_row_text += current_line.replace("\n", " ")
-                flag = 7
+                flag = ParseState.TITLE.value
 
         previous_line = current_line
     ################################
@@ -639,7 +570,7 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
     # (only Scifinder)
     #
 
-    flag = 0
+    flag = ParseState.GENERIC.value
     # 0 = generic
     # 8 = authors
     # 9 = skip
@@ -654,27 +585,23 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
         # get reaction ID
         if current_line.startswith("$RFMT"):
             rxn_id = str(current_line.strip().split(" ")[2])
-            flag = 0
+            flag = ParseState.GENERIC.value
             continue
 
             # Get Authors
-        if re.match(".+AUTHOR", previous_line) or flag == 8:
-            flag = 8
+        if re.match(".+AUTHOR", previous_line) or flag == ParseState.AUTHORS.value:
+            flag = ParseState.AUTHORS.value
             if re.match(".+AUTHOR", previous_line):
-                current_column = (
-                    previous_line.strip().split(" ")[1].replace(RDF_TYPE, "")
-                )
+                current_column = previous_line.strip().split(" ")[1].replace(RDF_TYPE, "")
 
             if current_line.startswith("$DTYPE"):
                 # this is the end of author block
-                flag = 9
-                my_table.loc[rxn_id, current_column] = multiple_row_text.replace(
-                    "$DATUM ", ""
-                )
+                flag = ParseState.SKIP.value
+                my_table.loc[rxn_id, current_column] = multiple_row_text.replace("$DATUM ", "")
                 multiple_row_text = ""
             else:
                 multiple_row_text += current_line.replace("\n", " ")
-                flag = 8
+                flag = ParseState.AUTHORS.value
 
         previous_line = current_line
     ################################
@@ -688,7 +615,7 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
     # (less ifs and doesn't screw anything up)
     #
 
-    flag = 0
+    flag = ParseState.GENERIC.value
     # 0 = generic
     # 9 = skip
     # 4 = citation
@@ -703,27 +630,23 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
         # get reaction ID
         if current_line.startswith("$RFMT"):
             rxn_id = str(current_line.strip().split(" ")[2])
-            flag = 0
+            flag = ParseState.GENERIC.value
             continue
 
             # Get Citation
-        if re.match(".+CITATION", previous_line) or flag == 4:
-            flag = 4
+        if re.match(".+CITATION", previous_line) or flag == ParseState.CITATION.value:
+            flag = ParseState.CITATION.value
             if re.match(".+CITATION", previous_line):
-                current_column = (
-                    previous_line.strip().split(" ")[1].replace(RDF_TYPE, "")
-                )
+                current_column = previous_line.strip().split(" ")[1].replace(RDF_TYPE, "")
 
             if current_line.startswith("$DTYPE"):
                 # this is the end of citation block
-                flag = 9
-                my_table.loc[rxn_id, current_column] = multiple_row_text.replace(
-                    "$DATUM ", ""
-                )
+                flag = ParseState.SKIP.value
+                my_table.loc[rxn_id, current_column] = multiple_row_text.replace("$DATUM ", "")
                 multiple_row_text = ""
             else:
                 multiple_row_text += current_line.replace("\n", " ")
-                flag = 4
+                flag = ParseState.CITATION.value
 
         previous_line = current_line
     ################################
@@ -734,9 +657,7 @@ def csv_from_rdf(rdf_file_ok: str, rdf_file_csv: str) -> None:
     # Finish table for export to csv file format
 
     my_table = my_table.replace(np.nan, "", regex=True)  # need to remove NaN
-    my_table.drop(
-        list(my_table.filter(regex="COPYRIGHT")), axis=1, inplace=True
-    )  # skip the copyright (optional)
+    my_table.drop(list(my_table.filter(regex="COPYRIGHT")), axis=1, inplace=True)  # skip the copyright (optional)
     my_table.to_csv(rdf_file_csv, sep="\t", header=True, index=True, encoding="utf-8")
 
     # end of script
