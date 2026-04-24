@@ -15,6 +15,6 @@ This package was initially developed at RISE Södertälje, Sweden, later maintai
 
 """
 
-__version__ = "3.0.9"
+__version__ = "3.1.1"
 __author__ = "Alexander Minidis | DocMinus"
 __credits__ = "RISE Södertälje, Sweden"
