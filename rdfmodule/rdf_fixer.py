@@ -20,7 +20,7 @@ import os
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import Tuple
+from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -46,11 +46,11 @@ class ParseState(Enum):
 
 @dataclass
 class Files:
-    rdf_source: list
-    rdf_fixed: list
-    csv_file: list
+    rdf_source: List[str]
+    rdf_fixed: List[str]
+    csv_file: List[str]
 
-    def rdf_to_rdffix_zipped(self):
+    def rdf_to_rdffix_zipped(self) -> zip:
         return zip(self.rdf_source, self.rdf_fixed)
 
 
@@ -108,7 +108,7 @@ def files_to_read(rdf_source: str) -> Files:
     return Files(file_list_in, file_list_ok, file_list_csv)
 
 
-def fix(rdf_source: str, convert_to_csv=True) -> None:
+def fix(rdf_source: str, convert_to_csv: bool = True) -> None:
     """Fix erroneous entries (empty mols) by deleting those entries.
 
     Calls files_to_read converts to csv.
